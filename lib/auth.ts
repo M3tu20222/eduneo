@@ -5,7 +5,6 @@ import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import { compare } from "bcrypt";
 
-// Extend the built-in types to include our custom 'role' property
 declare module "next-auth" {
   interface Session {
     user: {
@@ -34,6 +33,9 @@ declare module "next-auth/jwt" {
 
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
+  session: {
+    strategy: "jwt",
+  },
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -43,52 +45,51 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error("Email ve şifre gerekli");
         }
 
-        const client = await clientPromise;
-        const db = client.db();
-        const user = await db
-          .collection("users")
-          .findOne({ email: credentials.email });
+        try {
+          const client = await clientPromise;
+          const db = client.db();
+          const user = await db
+            .collection("users")
+            .findOne({ email: credentials.email });
 
-        if (!user) {
-          return null;
+          if (!user) {
+            throw new Error("Kullanıcı bulunamadı");
+          }
+
+          const isPasswordValid = await compare(
+            credentials.password,
+            user.password
+          );
+
+          if (!isPasswordValid) {
+            throw new Error("Geçersiz şifre");
+          }
+
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.username || user.firstName + " " + user.lastName,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          throw error;
         }
-
-        const isPasswordValid = await compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user: User }): Promise<JWT> {
+    async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
         token.id = user.id;
       }
       return token;
     },
-    async session({
-      session,
-      token,
-    }: {
-      session: Session;
-      token: JWT;
-    }): Promise<Session> {
+    async session({ session, token }) {
       if (session?.user) {
         session.user.role = token.role;
         session.user.id = token.id;
