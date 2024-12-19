@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
+type MongooseConnection = {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+};
+
 declare global {
-  var mongoose:
-    | {
-        conn: typeof mongoose | null;
-        promise: Promise<typeof mongoose> | null;
-      }
-    | undefined;
+  var mongoose: MongooseConnection | undefined;
 }
 
 const MONGODB_URI = process.env.MONGODB_URI!;
@@ -23,29 +23,33 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-async function dbConnect() {
-  if (cached.conn) {
+async function dbConnect(): Promise<typeof mongoose> {
+  if (cached?.conn) {
     return cached.conn;
   }
 
-  if (!cached.promise) {
+  if (!cached?.promise) {
     const opts = {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached = global.mongoose = {
+      conn: null,
+      promise: mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+        return mongoose;
+      }),
+    };
   }
 
   try {
-    cached.conn = await cached.promise;
+    const conn = await cached.promise;
+    cached.conn = conn;
   } catch (e) {
     cached.promise = null;
     throw e;
   }
 
-  return cached.conn;
+  return cached.conn!;
 }
 
 export default dbConnect;

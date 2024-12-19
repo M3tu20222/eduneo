@@ -5,8 +5,6 @@ import clientPromise from "@/lib/mongodb";
 import { compare } from "bcrypt";
 import { DefaultUser } from "next-auth";
 
-// Remove any references to Edge Runtime
-
 declare module "next-auth" {
   interface User extends DefaultUser {
     role?: string;
