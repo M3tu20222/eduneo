@@ -24,7 +24,7 @@ declare module "next-auth" {
   }
 }
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
@@ -85,8 +85,8 @@ export const authOptions: NextAuthOptions = {
       token: JWT & { role?: string; id?: string };
     }): Promise<Session> {
       if (session?.user) {
-        session.user.role = token.role ?? "user"; // Provide a default role if undefined
-        session.user.id = token.id ?? ""; // Provide an empty string if undefined
+        session.user.role = token.role ?? "user";
+        session.user.id = token.id ?? "";
         session.user.name = session.user.name ?? null;
         session.user.email = session.user.email ?? null;
         session.user.image = session.user.image ?? null;
