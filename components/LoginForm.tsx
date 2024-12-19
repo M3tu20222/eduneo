@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,10 +21,8 @@ export function LoginForm() {
     });
 
     if (result?.error) {
-      // Handle errors
       console.error(result.error);
     } else {
-      // Redirect based on user role
       router.push("/dashboard");
     }
   };

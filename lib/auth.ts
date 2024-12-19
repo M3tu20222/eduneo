@@ -1,32 +1,34 @@
-import type { NextAuthOptions, Session, User } from "next-auth";
-import type { JWT } from "next-auth/jwt";
+import { NextAuthOptions, User, Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import { compare } from "bcrypt";
 
-// Module augmentation
+// Extend the built-in types to include our custom 'role' property
 declare module "next-auth" {
-  interface User {
-    role?: string;
-    id?: string;
-  }
-
   interface Session {
     user: {
-      id?: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      role?: string;
+      id: string;
+      name: string | null;
+      email: string | null;
+      image: string | null;
+      role: string;
     };
+  }
+
+  interface User {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    role?: string;
-    id?: string;
+    role: string;
+    id: string;
   }
 }
 
@@ -73,14 +75,20 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user?: User }) {
+    async jwt({ token, user }: { token: JWT; user: User }): Promise<JWT> {
       if (user) {
         token.role = user.role;
         token.id = user.id;
       }
       return token;
     },
-    async session({ session, token }: { session: Session; token: JWT }) {
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT;
+    }): Promise<Session> {
       if (session?.user) {
         session.user.role = token.role;
         session.user.id = token.id;
