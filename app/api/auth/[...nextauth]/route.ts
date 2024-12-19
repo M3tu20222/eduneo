@@ -1,24 +1,25 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions, User, Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import { compare } from "bcrypt";
-import { DefaultUser } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
-  interface User extends DefaultUser {
-    role?: string;
+  interface User {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
   }
-}
 
-declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      role?: string;
+      name: string | null;
+      email: string | null;
+      image: string | null;
+      role: string;
     };
   }
 }
@@ -69,18 +70,28 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user?: User }): Promise<JWT> {
       if (user) {
         token.role = user.role;
+        token.id = user.id;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT & { role?: string; id?: string };
+    }): Promise<Session> {
       if (session?.user) {
-        session.user.role = token.role as string;
-        session.user.id = token.sub as string;
+        session.user.role = token.role ?? "user"; // Provide a default role if undefined
+        session.user.id = token.id ?? ""; // Provide an empty string if undefined
+        session.user.name = session.user.name ?? null;
+        session.user.email = session.user.email ?? null;
+        session.user.image = session.user.image ?? null;
       }
-      return session;
+      return session as Session;
     },
   },
   pages: {
