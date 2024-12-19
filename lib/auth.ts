@@ -1,13 +1,20 @@
-import { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, Session, User } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import { compare } from "bcrypt";
 
+// Module augmentation
 declare module "next-auth" {
+  interface User {
+    role?: string;
+    id?: string;
+  }
+
   interface Session {
     user: {
-      id: string;
+      id?: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
@@ -19,6 +26,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     role?: string;
+    id?: string;
   }
 }
 
@@ -65,19 +73,18 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.role = user.role;
         token.id = user.id;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session?.user) {
         session.user.role = token.role;
         session.user.id = token.id;
       }
-      console.log("Session callback called. Session:", session);
       return session;
     },
   },
