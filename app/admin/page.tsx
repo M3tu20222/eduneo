@@ -2,11 +2,13 @@ import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
+import { Session } from "next-auth";
 
 export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as Session | null;
 
   if (!session || session.user?.role !== "admin") {
+    console.log("Unauthorized access attempt to admin page:", session?.user);
     redirect("/login");
   }
 

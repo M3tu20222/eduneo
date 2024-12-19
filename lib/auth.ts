@@ -5,21 +5,20 @@ import clientPromise from "@/lib/mongodb";
 import { compare } from "bcrypt";
 
 declare module "next-auth" {
-  interface User {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  }
-
   interface Session {
     user: {
       id: string;
-      name: string | null;
-      email: string | null;
-      image: string | null;
-      role: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      role?: string;
     };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role?: string;
   }
 }
 
@@ -65,9 +64,6 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -78,16 +74,15 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session?.user) {
-        session.user.role = token.role as string;
-        session.user.id = token.id as string;
-        session.user.name = session.user.name ?? null;
-        session.user.email = session.user.email ?? null;
-        session.user.image = session.user.image ?? null;
+        session.user.role = token.role;
+        session.user.id = token.id;
       }
+      console.log("Session callback called. Session:", session);
       return session;
     },
   },
   pages: {
     signIn: "/login",
   },
+  debug: process.env.NODE_ENV === "development",
 };

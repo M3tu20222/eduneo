@@ -1,9 +1,10 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth"; // Updated import
+import { authOptions } from "@/lib/auth";
+import { Session } from "next-auth";
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+  const session = (await getServerSession(authOptions)) as Session | null;
 
   if (!session) {
     redirect("/login");
@@ -19,5 +20,6 @@ export default async function DashboardPage() {
     redirect("/student");
   }
 
-  return <div>Yönlendiriliyor...</div>;
+  // If the role is not defined or is an unknown role
+  return <div>Geçersiz rol. Lütfen sistem yöneticisi ile iletişime geçin.</div>;
 }
