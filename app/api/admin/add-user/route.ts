@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import clientPromise from "@/lib/mongodb";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth"; // Updated import
 
 export async function POST(req: Request) {
   try {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     const client = await clientPromise;
     const db = client.db();
 
-    // E-posta veya kullanıcı adının zaten kullanımda olup olmadığını kontrol et
+    // Check if email or username is already in use
     const existingUser = await db.collection("users").findOne({
       $or: [{ email }, { username }],
     });
@@ -38,10 +38,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Şifreyi hashle
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Yeni kullanıcı oluştur
+    // Create new user
     const newUser = {
       username,
       password: hashedPassword,
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       ...(role === "student" && { class: studentClass, studentNumber }),
     };
 
-    // Kullanıcıyı veritabanına ekle
+    // Add user to database
     await db.collection("users").insertOne(newUser);
 
     return NextResponse.json(
