@@ -3,7 +3,14 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Users, BookOpen, Calendar, Settings, LogOut } from "lucide-react";
+import {
+  Users,
+  BookOpen,
+  Calendar,
+  Settings,
+  LogOut,
+  UserPlus,
+} from "lucide-react";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
@@ -35,7 +42,7 @@ export default async function AdminPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {/* Kullanıcı Yönetimi */}
           <Link href="/admin/users" className="block">
             <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
@@ -47,13 +54,35 @@ export default async function AdminPage() {
             </div>
           </Link>
 
+          {/* Kullanıcı Ekleme */}
+          <Link href="/admin/add-user" className="block">
+            <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
+              <UserPlus className="h-8 w-8 mb-4 text-neon-green" />
+              <h2 className="text-xl font-semibold mb-2">Kullanıcı Ekle</h2>
+              <p className="text-muted-foreground">
+                Yeni öğretmen, öğrenci veya admin ekleyin
+              </p>
+            </div>
+          </Link>
+
           {/* Ders Yönetimi */}
           <Link href="/admin/classes" className="block">
             <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
               <BookOpen className="h-8 w-8 mb-4 text-neon-blue" />
               <h2 className="text-xl font-semibold mb-2">Ders Yönetimi</h2>
               <p className="text-muted-foreground">
-                Dersleri oluşturun ve düzenleyin
+                Dersleri görüntüleyin, oluşturun ve düzenleyin
+              </p>
+            </div>
+          </Link>
+
+          {/* Sınıf Ekleme */}
+          <Link href="/admin/classes/add" className="block">
+            <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
+              <Calendar className="h-8 w-8 mb-4 text-neon-purple" />
+              <h2 className="text-xl font-semibold mb-2">Yeni Sınıf Ekle</h2>
+              <p className="text-muted-foreground">
+                Yeni bir sınıf oluşturun ve yapılandırın
               </p>
             </div>
           </Link>
