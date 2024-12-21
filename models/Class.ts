@@ -11,10 +11,10 @@ const ClassSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  branchTeachers: [
+  courses: [
     {
-      teacher: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      branch: { type: String, required: true }, // örn: "Matematik", "Fizik"
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
     },
   ],
   students: [

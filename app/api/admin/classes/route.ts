@@ -17,20 +17,21 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     const classes = await Class.find()
-      .populate("classTeacher", "firstName lastName email")
-      .populate("students", "firstName lastName email")
-      .populate("branchTeachers.teacher", "firstName lastName email")
-      .sort({ name: 1 });
+      .populate("classTeacher", "firstName lastName")
+      .lean();
+
+    console.log("Fetched classes:", JSON.stringify(classes, null, 2));
 
     return NextResponse.json(classes);
   } catch (error) {
-    console.error("Sınıfları listelerken hata:", error);
+    console.error("Sınıfları getirme hatası:", error);
     return NextResponse.json(
-      { error: "Sınıflar listelenirken bir hata oluştu" },
+      { error: "Sınıflar alınırken bir hata oluştu" },
       { status: 500 }
     );
   }
 }
+
 
 // Yeni sınıf ekle
 export async function POST(req: NextRequest) {

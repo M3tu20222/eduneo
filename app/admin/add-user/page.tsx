@@ -1,80 +1,87 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 
 interface Class {
-  _id: string
-  name: string
+  _id: string;
+  name: string;
 }
 
 export default function AddUserPage() {
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    email: '',
-    firstName: '',
-    lastName: '',
-    role: '',
-    class: '',
-    studentNumber: '',
-  })
-  const [classes, setClasses] = useState<Class[]>([])
-  const [error, setError] = useState('')
-  const router = useRouter()
+    username: "",
+    password: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    role: "",
+    class: "",
+    studentNumber: "",
+  });
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
-    fetchClasses()
-  }, [])
+    fetchClasses();
+  }, []);
 
   const fetchClasses = async () => {
     try {
-      const response = await fetch('/api/admin/classes')
+      const response = await fetch("/api/admin/classes");
       if (response.ok) {
-        const data = await response.json()
-        setClasses(data)
+        const data = await response.json();
+        setClasses(data);
       } else {
-        console.error('Sınıflar alınamadı')
+        console.error("Sınıflar alınamadı");
       }
     } catch (error) {
-      console.error('Sınıfları getirme hatası:', error)
+      console.error("Sınıfları getirme hatası:", error);
     }
-  }
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError("");
 
     try {
-      const response = await fetch('/api/admin/add-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/admin/add-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (response.ok) {
-        router.push('/admin/users')
+        router.push("/admin/users");
       } else {
-        const data = await response.json()
-        setError(data.message || 'Kullanıcı ekleme işlemi başarısız oldu.')
+        const data = await response.json();
+        setError(data.message || "Kullanıcı ekleme işlemi başarısız oldu.");
       }
     } catch (err) {
-      setError('Bir hata oluştu. Lütfen tekrar deneyin.')
+      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md p-8 bg-card rounded-lg cyberpunk-border cyberpunk-glow">
-        <h2 className="text-2xl font-bold mb-6 cyberpunk-text text-center">Yeni Kullanıcı Ekle</h2>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 w-full max-w-md p-8 bg-card rounded-lg cyberpunk-border cyberpunk-glow"
+      >
+        <h2 className="text-2xl font-bold mb-6 cyberpunk-text text-center">
+          Yeni Kullanıcı Ekle
+        </h2>
         <Input
           type="text"
           name="username"
@@ -132,7 +139,7 @@ export default function AddUserPage() {
           <option value="teacher">Öğretmen</option>
           <option value="admin">Admin</option>
         </Select>
-        {formData.role === 'student' && (
+        {formData.role === "student" && (
           <>
             <Select
               name="class"
@@ -165,6 +172,5 @@ export default function AddUserPage() {
         </Button>
       </form>
     </div>
-  )
+  );
 }
-
