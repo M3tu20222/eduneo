@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import {
   Users,
   BookOpen,
+  GraduationCap,
   Calendar,
   Settings,
   LogOut,
   UserPlus,
+  School,
+  BookMarked,
 } from "lucide-react";
 
 export default async function AdminPage() {
@@ -65,8 +68,41 @@ export default async function AdminPage() {
             </div>
           </Link>
 
-          {/* Ders Yönetimi */}
+          {/* Branş Yönetimi */}
+          <Link href="/admin/branches" className="block">
+            <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
+              <BookMarked className="h-8 w-8 mb-4 text-neon-yellow" />
+              <h2 className="text-xl font-semibold mb-2">Branş Yönetimi</h2>
+              <p className="text-muted-foreground">
+                Branşları görüntüleyin, oluşturun ve düzenleyin
+              </p>
+            </div>
+          </Link>
+
+          {/* Sınıf Yönetimi */}
           <Link href="/admin/classes" className="block">
+            <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
+              <School className="h-8 w-8 mb-4 text-neon-blue" />
+              <h2 className="text-xl font-semibold mb-2">Sınıf Yönetimi</h2>
+              <p className="text-muted-foreground">
+                Sınıfları görüntüleyin, oluşturun ve düzenleyin
+              </p>
+            </div>
+          </Link>
+
+          {/* Öğretmen Yönetimi */}
+          <Link href="/admin/teachers" className="block">
+            <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
+              <GraduationCap className="h-8 w-8 mb-4 text-neon-pink" />
+              <h2 className="text-xl font-semibold mb-2">Öğretmen Yönetimi</h2>
+              <p className="text-muted-foreground">
+                Öğretmenleri görüntüleyin, düzenleyin ve branş atayın
+              </p>
+            </div>
+          </Link>
+
+          {/* Ders Yönetimi */}
+          <Link href="/admin/courses" className="block">
             <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
               <BookOpen className="h-8 w-8 mb-4 text-neon-blue" />
               <h2 className="text-xl font-semibold mb-2">Ders Yönetimi</h2>
@@ -76,21 +112,10 @@ export default async function AdminPage() {
             </div>
           </Link>
 
-          {/* Sınıf Ekleme */}
-          <Link href="/admin/classes/add" className="block">
-            <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
-              <Calendar className="h-8 w-8 mb-4 text-neon-purple" />
-              <h2 className="text-xl font-semibold mb-2">Yeni Sınıf Ekle</h2>
-              <p className="text-muted-foreground">
-                Yeni bir sınıf oluşturun ve yapılandırın
-              </p>
-            </div>
-          </Link>
-
           {/* Dönem Yönetimi */}
           <Link href="/admin/terms" className="block">
             <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow hover:scale-105 transition-transform">
-              <Calendar className="h-8 w-8 mb-4 text-neon-pink" />
+              <Calendar className="h-8 w-8 mb-4 text-neon-purple" />
               <h2 className="text-xl font-semibold mb-2">Dönem Yönetimi</h2>
               <p className="text-muted-foreground">
                 Akademik dönemleri ve takvimi yönetin

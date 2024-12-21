@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import clientPromise from "@/lib/mongodb";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth"; // Updated import
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       firstName,
       lastName,
       role,
-      class: studentClass,
+      class: classId,
       studentNumber,
     } = await req.json();
 
@@ -49,11 +49,19 @@ export async function POST(req: Request) {
       firstName,
       lastName,
       role,
-      ...(role === "student" && { class: studentClass, studentNumber }),
+      ...(role === "student" && { class: classId, studentNumber }),
     };
 
     // Add user to database
-    await db.collection("users").insertOne(newUser);
+    const result = await db.collection("users").insertOne(newUser);
+    const userId = result.insertedId;
+
+    // If the user is a student, add them to the class
+    if (role === "student" && classId) {
+      await db
+        .collection("classes")
+        .updateOne({ _id: classId }, { $push: { students: userId } });
+    }
 
     return NextResponse.json(
       { message: "Kullanıcı başarıyla eklendi." },
