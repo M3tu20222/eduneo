@@ -6,6 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 
+// Türkçe karakterleri İngilizce karakterlere dönüştürme
+const convertToNonAccented = (str: string) => {
+  return str
+    .toLowerCase()
+    .replace(/[ğ]/g, "g")
+    .replace(/[ü]/g, "u")
+    .replace(/[ş]/g, "s")
+    .replace(/[ı]/g, "i")
+    .replace(/[ö]/g, "o")
+    .replace(/[ç]/g, "c");
+};
+
 interface Class {
   _id: string;
   name: string;
@@ -44,11 +56,67 @@ export default function AddUserPage() {
     }
   };
 
-  const handleChange = (
+  // Öğrenci bilgilerinden otomatik kullanıcı adı oluşturma
+  const generateUsername = (
+    firstName: string,
+    lastName: string,
+    studentNumber: string,
+    className: string
+  ) => {
+    if (!firstName || !lastName || !studentNumber || !className) return "";
+
+    // İsmin ilk 2 harfi + öğrenci no + soyismin ilk 2 harfi + sınıf kodu (sayı ve harf)
+    const firstNamePrefix = convertToNonAccented(firstName).substring(0, 2);
+    const lastNamePrefix = convertToNonAccented(lastName).substring(0, 2);
+    const classCode = convertToNonAccented(className.replace("-", ""));
+
+    return `${firstNamePrefix}${studentNumber}${lastNamePrefix}${classCode}`;
+  };
+
+  // Öğrenci bilgilerinden otomatik e-posta oluşturma
+  const generateEmail = (username: string) => {
+    if (!username) return "";
+    return `${username}@24agustos.com`;
+  };
+
+  // Öğrenci bilgilerinden otomatik şifre oluşturma
+  const generatePassword = (username: string) => {
+    if (!username) return "";
+    return `24${username}`;
+  };
+
+  const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const newData = { ...prev, [name]: value };
+
+      // Eğer rol öğrenci ise ve gerekli bilgiler doluysa otomatik alanları oluştur
+      if (newData.role === "student") {
+        const selectedClass = classes.find((c) => c._id === newData.class);
+        const className = selectedClass ? selectedClass.name : "";
+
+        if (
+          newData.firstName &&
+          newData.lastName &&
+          newData.studentNumber &&
+          className
+        ) {
+          const username = generateUsername(
+            newData.firstName,
+            newData.lastName,
+            newData.studentNumber,
+            className
+          );
+          newData.username = username;
+          newData.email = generateEmail(username);
+          newData.password = generatePassword(username);
+        }
+      }
+
+      return newData;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,91 +150,138 @@ export default function AddUserPage() {
         <h2 className="text-2xl font-bold mb-6 cyberpunk-text text-center">
           Yeni Kullanıcı Ekle
         </h2>
-        <Input
-          type="text"
-          name="username"
-          placeholder="Kullanıcı Adı"
-          value={formData.username}
-          onChange={handleChange}
-          required
-          className="w-full p-2 bg-background text-foreground"
-        />
-        <Input
-          type="password"
-          name="password"
-          placeholder="Şifre"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          className="w-full p-2 bg-background text-foreground"
-        />
-        <Input
-          type="email"
-          name="email"
-          placeholder="E-posta"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          className="w-full p-2 bg-background text-foreground"
-        />
-        <Input
-          type="text"
-          name="firstName"
-          placeholder="Ad"
-          value={formData.firstName}
-          onChange={handleChange}
-          required
-          className="w-full p-2 bg-background text-foreground"
-        />
-        <Input
-          type="text"
-          name="lastName"
-          placeholder="Soyad"
-          value={formData.lastName}
-          onChange={handleChange}
-          required
-          className="w-full p-2 bg-background text-foreground"
-        />
-        <Select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          required
-          className="w-full p-2 bg-background text-foreground"
-        >
-          <option value="">Rol Seçin</option>
-          <option value="student">Öğrenci</option>
-          <option value="teacher">Öğretmen</option>
-          <option value="admin">Admin</option>
-        </Select>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium" htmlFor="role">
+            Rol
+          </label>
+          <Select
+            name="role"
+            value={formData.role}
+            onChange={handleInputChange}
+            required
+            className="w-full p-2 bg-background text-foreground"
+          >
+            <option value="">Rol Seçin</option>
+            <option value="student">Öğrenci</option>
+            <option value="teacher">Öğretmen</option>
+            <option value="admin">Admin</option>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium" htmlFor="firstName">
+            Ad
+          </label>
+          <Input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleInputChange}
+            required
+            className="w-full p-2 bg-background text-foreground"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium" htmlFor="lastName">
+            Soyad
+          </label>
+          <Input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+            required
+            className="w-full p-2 bg-background text-foreground"
+          />
+        </div>
+
         {formData.role === "student" && (
           <>
-            <Select
-              name="class"
-              value={formData.class}
-              onChange={handleChange}
-              required
-              className="w-full p-2 bg-background text-foreground"
-            >
-              <option value="">Sınıf Seçin</option>
-              {classes.map((cls) => (
-                <option key={cls._id} value={cls._id}>
-                  {cls.name}
-                </option>
-              ))}
-            </Select>
-            <Input
-              type="text"
-              name="studentNumber"
-              placeholder="Öğrenci Numarası"
-              value={formData.studentNumber}
-              onChange={handleChange}
-              required
-              className="w-full p-2 bg-background text-foreground"
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="class">
+                Sınıf
+              </label>
+              <Select
+                name="class"
+                value={formData.class}
+                onChange={handleInputChange}
+                required
+                className="w-full p-2 bg-background text-foreground"
+              >
+                <option value="">Sınıf Seçin</option>
+                {classes.map((cls) => (
+                  <option key={cls._id} value={cls._id}>
+                    {cls.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="studentNumber">
+                Öğrenci Numarası
+              </label>
+              <Input
+                type="text"
+                name="studentNumber"
+                value={formData.studentNumber}
+                onChange={handleInputChange}
+                required
+                className="w-full p-2 bg-background text-foreground"
+              />
+            </div>
           </>
         )}
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium" htmlFor="username">
+            Kullanıcı Adı
+          </label>
+          <Input
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleInputChange}
+            required
+            readOnly={formData.role === "student"}
+            className="w-full p-2 bg-background text-foreground"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium" htmlFor="email">
+            E-posta
+          </label>
+          <Input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+            readOnly={formData.role === "student"}
+            className="w-full p-2 bg-background text-foreground"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium" htmlFor="password">
+            Şifre
+          </label>
+          <Input
+            type="text"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            required
+            readOnly={formData.role === "student"}
+            className="w-full p-2 bg-background text-foreground"
+          />
+        </div>
+
         {error && <p className="text-red-500">{error}</p>}
+
         <Button type="submit" className="w-full cyberpunk-button">
           Kullanıcı Ekle
         </Button>
