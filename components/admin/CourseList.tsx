@@ -21,11 +21,19 @@ interface Course {
     name: string;
   };
   teacher: {
-    name: string;
+    _id: string;
+    firstName: string;
+    lastName: string;
   };
   class: {
     name: string;
   };
+}
+
+interface Teacher {
+  _id: string;
+  firstName: string;
+  lastName: string;
 }
 
 export function CourseList() {
@@ -98,7 +106,11 @@ export function CourseList() {
               <TableCell>{course.name}</TableCell>
               <TableCell>{course.code}</TableCell>
               <TableCell>{course.branch.name}</TableCell>
-              <TableCell>{course.teacher.name}</TableCell>
+              <TableCell>
+                {course.teacher
+                  ? `${course.teacher.firstName} ${course.teacher.lastName}`
+                  : "Atanmamış"}
+              </TableCell>
               <TableCell>{course.class.name}</TableCell>
               <TableCell>
                 <div className="flex space-x-2">

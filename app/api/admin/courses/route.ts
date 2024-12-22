@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
 import Course from "@/models/Course";
 import Class from "@/models/Class";
+import Branch from "@/models/Branch";
+import User from "@/models/User";
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,10 +69,14 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
+    // Önce modellerin yüklendiğinden emin olalım
+    await Promise.all([Branch.findOne({}), User.findOne({})]);
+
     const courses = await Course.find()
       .populate("branch", "name")
-      .populate("teacher", "name")
-      .populate("class", "name");
+      .populate("teacher", "firstName lastName")
+      .populate("class", "name")
+      .lean();
 
     return NextResponse.json(courses);
   } catch (error) {
