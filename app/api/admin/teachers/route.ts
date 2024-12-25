@@ -5,6 +5,7 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import Branch from "@/models/Branch";
 import Class from "@/models/Class";
+import Course from "@/models/Course";
 import bcrypt from "bcrypt";
 
 export async function GET(req: NextRequest) {
@@ -20,9 +21,26 @@ export async function GET(req: NextRequest) {
     const teachers = await User.find({ role: "teacher" })
       .select("-password")
       .populate("branches")
-      .populate("classes");
+      .lean();
 
-    return NextResponse.json(teachers);
+    // Öğretmenlerin ders verdikleri sınıfları al
+    const teachersWithClassInfo = await Promise.all(
+      teachers.map(async (teacher) => {
+        const courses = await Course.find({ teacher: teacher._id })
+          .populate("class", "name")
+          .lean();
+
+        const classes = courses.map((course) => course.class.name);
+        const uniqueClasses = Array.from(new Set(classes));
+
+        return {
+          ...teacher,
+          classes: uniqueClasses,
+        };
+      })
+    );
+
+    return NextResponse.json(teachersWithClassInfo);
   } catch (error) {
     console.error("Öğretmenleri getirme hatası:", error);
     return NextResponse.json(

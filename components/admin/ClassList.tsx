@@ -12,26 +12,14 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit2, Trash2 } from "lucide-react";
-
-interface Teacher {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
-interface BranchTeacher {
-  teacher: Teacher;
-  branch: string;
-}
+import { toast } from "@/components/ui/use-toast";
 
 interface Class {
   _id: string;
   name: string;
   academicYear: string;
-  classTeacher: Teacher;
-  branchTeachers: BranchTeacher[];
-  students: Teacher[];
+  classTeacherName: string;
+  studentCount: number;
   isActive: boolean;
 }
 
@@ -52,12 +40,43 @@ export function ClassList() {
         throw new Error("Sınıflar yüklenirken bir hata oluştu");
       }
       const data = await response.json();
+      console.log("Fetched classes:", data); // Debugging için log
       setClasses(data);
     } catch (error) {
       setError("Sınıflar yüklenirken bir hata oluştu");
       console.error("Sınıfları yükleme hatası:", error);
+      toast({
+        title: "Hata",
+        description: "Sınıflar yüklenirken bir hata oluştu",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Bu sınıfı silmek istediğinizden emin misiniz?")) {
+      try {
+        const response = await fetch(`/api/admin/classes/${id}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) {
+          throw new Error("Sınıf silinirken bir hata oluştu");
+        }
+        toast({
+          title: "Başarılı",
+          description: "Sınıf başarıyla silindi",
+        });
+        fetchClasses(); // Listeyi yenile
+      } catch (error) {
+        console.error("Sınıf silme hatası:", error);
+        toast({
+          title: "Hata",
+          description: "Sınıf silinirken bir hata oluştu",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -87,10 +106,8 @@ export function ClassList() {
             <TableRow key={cls._id}>
               <TableCell>{cls.name}</TableCell>
               <TableCell>{cls.academicYear}</TableCell>
-              <TableCell>
-                {`${cls.classTeacher.firstName} ${cls.classTeacher.lastName}`}
-              </TableCell>
-              <TableCell>{cls.students.length}</TableCell>
+              <TableCell>{cls.classTeacherName}</TableCell>
+              <TableCell>{cls.studentCount}</TableCell>
               <TableCell>
                 <span
                   className={`px-2 py-1 rounded-full text-sm ${
@@ -117,6 +134,7 @@ export function ClassList() {
                     variant="ghost"
                     size="icon"
                     className="text-red-500 hover:text-red-700"
+                    onClick={() => handleDelete(cls._id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

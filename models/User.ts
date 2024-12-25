@@ -1,4 +1,16 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
+
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password: string;
+  role: "admin" | "teacher" | "student";
+  branches: Types.ObjectId[];
+  classes?: Types.ObjectId[];
+  studentNumber?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -16,4 +28,6 @@ const UserSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+
+export default User;

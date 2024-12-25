@@ -1,4 +1,11 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
+
+export interface IBranch extends Document {
+  name: string;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const BranchSchema = new mongoose.Schema({
   name: {
@@ -26,4 +33,7 @@ BranchSchema.pre("save", function (next) {
   next();
 });
 
-export default mongoose.models.Branch || mongoose.model("Branch", BranchSchema);
+const Branch: Model<IBranch> =
+  mongoose.models.Branch || mongoose.model<IBranch>("Branch", BranchSchema);
+
+export default Branch;

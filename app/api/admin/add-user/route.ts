@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import clientPromise from "@/lib/mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import Class from "@/models/Class";
 
 export async function POST(req: Request) {
   try {
@@ -58,13 +59,16 @@ export async function POST(req: Request) {
 
     // If the user is a student, add them to the class
     if (role === "student" && classId) {
-      await db
-        .collection("classes")
-        .updateOne({ _id: classId }, { $push: { students: userId } });
+      const updateResult = await Class.findByIdAndUpdate(
+        classId,
+        { $push: { students: userId } },
+        { new: true }
+      );
+      console.log("Sınıfa öğrenci ekleme sonucu:", updateResult);
     }
 
     return NextResponse.json(
-      { message: "Kullanıcı başarıyla eklendi." },
+      { message: "Kullanıcı başarıyla eklendi.", userId },
       { status: 201 }
     );
   } catch (error) {

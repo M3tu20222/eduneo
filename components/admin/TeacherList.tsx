@@ -18,17 +18,12 @@ interface Branch {
   name: string;
 }
 
-interface Class {
-  _id: string;
-  name: string;
-}
-
 interface Teacher {
   _id: string;
   name: string;
   email: string;
   branches: Branch[];
-  classes: Class[];
+  classes: string[];
 }
 
 export function TeacherList() {
@@ -102,9 +97,7 @@ export function TeacherList() {
               <TableCell>
                 {teacher.branches.map((b) => b.name).join(", ")}
               </TableCell>
-              <TableCell>
-                {teacher.classes.map((c) => c.name).join(", ")}
-              </TableCell>
+              <TableCell>{teacher.classes.join(", ")}</TableCell>
               <TableCell>
                 <div className="flex space-x-2">
                   <Button

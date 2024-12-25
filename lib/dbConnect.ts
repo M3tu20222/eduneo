@@ -36,6 +36,12 @@ async function dbConnect(): Promise<typeof mongoose> {
     cached = global.mongoose = {
       conn: null,
       promise: mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+        // Ensure all models are registered after connection
+        require("@/models/User");
+        require("@/models/Class");
+        require("@/models/Branch");
+        require("@/models/Course");
+        // Add any other models here
         return mongoose;
       }),
     };

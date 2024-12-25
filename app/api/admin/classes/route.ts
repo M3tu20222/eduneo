@@ -6,6 +6,8 @@ import Class from "@/models/Class";
 import User from "@/models/User";
 
 // Sınıfları listele
+
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,11 +20,23 @@ export async function GET(req: NextRequest) {
 
     const classes = await Class.find()
       .populate("classTeacher", "firstName lastName")
+      .populate("students")
       .lean();
 
-    console.log("Fetched classes:", JSON.stringify(classes, null, 2));
+    const formattedClasses = classes.map((cls) => ({
+      _id: cls._id,
+      name: cls.name,
+      academicYear: cls.academicYear,
+      classTeacherName: cls.classTeacher
+        ? `${cls.classTeacher.firstName} ${cls.classTeacher.lastName}`
+        : "Atanmamış",
+      studentCount: cls.students ? cls.students.length : 0,
+      isActive: cls.isActive,
+    }));
 
-    return NextResponse.json(classes);
+    console.log("Formatted classes:", formattedClasses); // Debugging için log
+
+    return NextResponse.json(formattedClasses);
   } catch (error) {
     console.error("Sınıfları getirme hatası:", error);
     return NextResponse.json(
