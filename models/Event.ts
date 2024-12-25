@@ -14,7 +14,7 @@ export interface IEvent extends Document {
   updatedAt: Date;
 }
 
-const EventSchema: Schema = new Schema({
+const EventSchema = new Schema({
   title: {
     type: String,
     required: true,
@@ -57,7 +57,6 @@ EventSchema.pre("save", function (next) {
   next();
 });
 
-const Event =
-  mongoose.models.Event || mongoose.model<IEvent>("Event", EventSchema);
+const Event = mongoose.models.Event || mongoose.model<IEvent>("EventSchema");
 
 export default Event;

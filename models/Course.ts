@@ -1,6 +1,20 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
+import { IUser } from "./User";
+import { IClass } from "./Class";
+import { IBranch } from "./Branch";
 
-const CourseSchema = new mongoose.Schema({
+export interface ICourse extends Document {
+  name: string;
+  code: string;
+  description?: string;
+  branch: IBranch["_id"];
+  teacher: IUser["_id"];
+  class: IClass["_id"];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const CourseSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -17,17 +31,17 @@ const CourseSchema = new mongoose.Schema({
     trim: true,
   },
   branch: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "Branch",
     required: true,
   },
   teacher: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
   class: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "Class",
     required: true,
   },
@@ -46,4 +60,7 @@ CourseSchema.pre("save", function (next) {
   next();
 });
 
-export default mongoose.models.Course || mongoose.model("Course", CourseSchema);
+const Course =
+  mongoose.models.Course || mongoose.model<ICourse>("Course", CourseSchema);
+
+export default Course;
