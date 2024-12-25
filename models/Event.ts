@@ -57,6 +57,8 @@ EventSchema.pre("save", function (next) {
   next();
 });
 
-const Event = mongoose.models.Event || mongoose.model<IEvent>("EventSchema");
+// Fix: Changed 'EventSchema' to 'Event' in the model name
+const Event =
+  mongoose.models.Event || mongoose.model<IEvent>("Event", EventSchema);
 
 export default Event;
