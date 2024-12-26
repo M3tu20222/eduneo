@@ -4,7 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Users, ClipboardList, Calendar } from "lucide-react";
+import {
+  BookOpen,
+  Users,
+  ClipboardList,
+  Calendar,
+  ClipboardCheck,
+} from "lucide-react";
 
 interface TeacherInfo {
   name: string;
@@ -95,6 +101,22 @@ export function TeacherDashboard({ userId }: TeacherDashboardProps) {
           <Link href="/teacher/assignments">
             <Button className="mt-4 w-full cyberpunk-button">
               Ödevleri Yönet
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+
+      <Card className="cyberpunk-border cyberpunk-glow">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <ClipboardCheck className="mr-2" />
+            Not Girişi
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Link href="/teacher/grades">
+            <Button className="mt-4 w-full cyberpunk-button">
+              Not Girişi Yap
             </Button>
           </Link>
         </CardContent>

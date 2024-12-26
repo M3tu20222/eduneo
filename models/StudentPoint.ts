@@ -2,17 +2,15 @@ import mongoose, { Document, Schema } from "mongoose";
 import { IUser } from "./User";
 import { ICourse } from "./Course";
 
-export interface IGrade extends Document {
+export interface IStudentPoint extends Document {
   student: IUser["_id"];
   course: ICourse["_id"];
-  type: "exam" | "homework" | "project" | "other";
-  value: number;
-  date: Date;
+  points: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const GradeSchema = new Schema({
+const StudentPointSchema = new Schema({
   student: {
     type: Schema.Types.ObjectId,
     ref: "User",
@@ -23,20 +21,9 @@ const GradeSchema = new Schema({
     ref: "Course",
     required: true,
   },
-  type: {
-    type: String,
-    enum: ["exam", "homework", "project", "other"],
-    required: true,
-  },
-  value: {
+  points: {
     type: Number,
-    required: true,
-    min: 0,
-    max: 100,
-  },
-  date: {
-    type: Date,
-    default: Date.now,
+    default: 0,
   },
   createdAt: {
     type: Date,
@@ -48,12 +35,13 @@ const GradeSchema = new Schema({
   },
 });
 
-GradeSchema.pre("save", function (next) {
+StudentPointSchema.pre("save", function (next) {
   this.updatedAt = new Date();
   next();
 });
 
-const Grade =
-  mongoose.models.Grade || mongoose.model<IGrade>("Grade", GradeSchema);
+const StudentPoint =
+  mongoose.models.StudentPoint ||
+  mongoose.model<IStudentPoint>("StudentPoint", StudentPointSchema);
 
-export default Grade;
+export default StudentPoint;
