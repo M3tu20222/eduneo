@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -56,23 +56,53 @@ export function GradeList({ teacherId }: { teacherId: string }) {
   const [loading, setLoading] = useState(true);
   const [loadingStudents, setLoadingStudents] = useState(false);
 
-  useEffect(() => {
-    fetchClasses();
-  }, []);
-
-  useEffect(() => {
-    if (selectedClass) {
-      fetchCourses();
+  const fetchCourses = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `/api/teacher/courses?userId=${teacherId}&classId=${selectedClass}`
+      );
+      if (!response.ok) {
+        throw new Error("Dersler alınamadı");
+      }
+      const data = await response.json();
+      setCourses(data);
+      if (data.length > 0) {
+        setSelectedCourse(data[0].id);
+      }
+    } catch (error) {
+      console.error("Dersler yüklenirken hata oluştu:", error);
+      toast({
+        title: "Hata",
+        description: "Dersler yüklenirken bir hata oluştu",
+        variant: "destructive",
+      });
     }
-  }, [selectedClass]);
+  }, [teacherId, selectedClass]);
 
-  useEffect(() => {
-    if (selectedClass && selectedCourse) {
-      fetchStudents();
+  const fetchStudents = useCallback(async () => {
+    try {
+      setLoadingStudents(true);
+      const response = await fetch(
+        `/api/teacher/students?classId=${selectedClass}&courseId=${selectedCourse}`
+      );
+      if (!response.ok) {
+        throw new Error("Öğrenciler alınamadı");
+      }
+      const data = await response.json();
+      setStudents(data);
+    } catch (error) {
+      console.error("Öğrenciler yüklenirken hata oluştu:", error);
+      toast({
+        title: "Hata",
+        description: "Öğrenciler yüklenirken bir hata oluştu",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingStudents(false);
     }
   }, [selectedClass, selectedCourse]);
 
-  const fetchClasses = async () => {
+  const fetchClasses = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/teacher/classes?userId=${teacherId}`);
@@ -99,53 +129,23 @@ export function GradeList({ teacherId }: { teacherId: string }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [teacherId]);
 
-  const fetchCourses = async () => {
-    try {
-      const response = await fetch(
-        `/api/teacher/courses?userId=${teacherId}&classId=${selectedClass}`
-      );
-      if (!response.ok) {
-        throw new Error("Dersler alınamadı");
-      }
-      const data = await response.json();
-      setCourses(data);
-      if (data.length > 0) {
-        setSelectedCourse(data[0].id);
-      }
-    } catch (error) {
-      console.error("Dersler yüklenirken hata oluştu:", error);
-      toast({
-        title: "Hata",
-        description: "Dersler yüklenirken bir hata oluştu",
-        variant: "destructive",
-      });
-    }
-  };
+  useEffect(() => {
+    fetchClasses();
+  }, [fetchClasses]);
 
-  const fetchStudents = async () => {
-    try {
-      setLoadingStudents(true);
-      const response = await fetch(
-        `/api/teacher/students?classId=${selectedClass}&courseId=${selectedCourse}`
-      );
-      if (!response.ok) {
-        throw new Error("Öğrenciler alınamadı");
-      }
-      const data = await response.json();
-      setStudents(data);
-    } catch (error) {
-      console.error("Öğrenciler yüklenirken hata oluştu:", error);
-      toast({
-        title: "Hata",
-        description: "Öğrenciler yüklenirken bir hata oluştu",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingStudents(false);
+  useEffect(() => {
+    if (selectedClass) {
+      fetchCourses();
     }
-  };
+  }, [selectedClass, fetchCourses]);
+
+  useEffect(() => {
+    if (selectedClass && selectedCourse) {
+      fetchStudents();
+    }
+  }, [selectedClass, selectedCourse, fetchStudents]);
 
   const handleGradeSubmit = async (grade: number) => {
     if (!selectedStudent || !selectedCourse) return;
