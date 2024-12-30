@@ -3,6 +3,26 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
 import Course from "@/models/Course";
+import { Types } from "mongoose";
+
+interface CourseQuery {
+  teacher: string;
+  class?: string;
+}
+
+interface CourseDocument {
+  _id: Types.ObjectId;
+  name: string;
+  code: string;
+  branch: {
+    _id: Types.ObjectId;
+    name: string;
+  };
+  class: {
+    _id: Types.ObjectId;
+    name: string;
+  };
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -24,15 +44,15 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    let query = { teacher: userId };
+    let query: CourseQuery = { teacher: userId };
     if (classId) {
       query = { ...query, class: classId };
     }
 
-    const courses = await Course.find(query)
+    const courses = (await Course.find(query)
       .populate("branch", "name")
       .populate("class", "name")
-      .lean();
+      .lean()) as CourseDocument[];
 
     const formattedCourses = courses.map((course) => ({
       id: course._id.toString(),

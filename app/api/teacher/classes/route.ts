@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
 import Class from "@/models/Class";
 import Course from "@/models/Course";
+import { Types } from "mongoose";
 
 export async function GET(req: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function GET(req: NextRequest) {
       .lean();
 
     const formattedClasses = classes.map((cls) => ({
-      id: cls._id.toString(),
+      id: (cls._id as Types.ObjectId).toString(),
       name: cls.name,
       academicYear: cls.academicYear,
     }));
