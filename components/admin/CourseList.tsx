@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Table,
   TableBody,
@@ -9,25 +9,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Edit2, Trash2 } from 'lucide-react'
 
 interface Course {
-  _id: string;
-  name: string;
-  code: string;
+  _id: string
+  name: string
+  code: string
   branch: {
-    name: string;
-  };
+    name: string
+  }
   teacher: {
     _id: string;
     firstName: string;
     lastName: string;
-  };
+  }
   class: {
-    name: string;
-  };
+    name: string
+  }
 }
 
 interface Teacher {
@@ -37,54 +37,54 @@ interface Teacher {
 }
 
 export function CourseList() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [courses, setCourses] = useState<Course[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
-    fetchCourses();
-  }, []);
+    fetchCourses()
+  }, [])
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch("/api/admin/courses");
+      const response = await fetch('/api/admin/courses')
       if (!response.ok) {
-        throw new Error("Dersler yüklenirken bir hata oluştu");
+        throw new Error('Dersler yüklenirken bir hata oluştu')
       }
-      const data = await response.json();
-      setCourses(data);
+      const data = await response.json()
+      setCourses(data)
     } catch (error) {
-      setError("Dersler yüklenirken bir hata oluştu");
-      console.error("Dersleri yükleme hatası:", error);
+      setError('Dersler yüklenirken bir hata oluştu')
+      console.error('Dersleri yükleme hatası:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Bu dersi silmek istediğinizden emin misiniz?")) {
+    if (window.confirm('Bu dersi silmek istediğinizden emin misiniz?')) {
       try {
         const response = await fetch(`/api/admin/courses/${id}`, {
-          method: "DELETE",
-        });
+          method: 'DELETE',
+        })
         if (!response.ok) {
-          throw new Error("Ders silinirken bir hata oluştu");
+          throw new Error('Ders silinirken bir hata oluştu')
         }
-        fetchCourses(); // Listeyi yenile
+        fetchCourses() // Listeyi yenile
       } catch (error) {
-        console.error("Ders silme hatası:", error);
-        setError("Ders silinirken bir hata oluştu");
+        console.error('Ders silme hatası:', error)
+        setError('Ders silinirken bir hata oluştu')
       }
     }
-  };
+  }
 
   if (loading) {
-    return <div className="text-center py-4">Yükleniyor...</div>;
+    return <div className="text-center py-4">Yükleniyor...</div>
   }
 
   if (error) {
-    return <div className="text-red-500 text-center py-4">{error}</div>;
+    return <div className="text-red-500 text-center py-4">{error}</div>
   }
 
   return (
@@ -107,9 +107,9 @@ export function CourseList() {
               <TableCell>{course.code}</TableCell>
               <TableCell>{course.branch.name}</TableCell>
               <TableCell>
-                {course.teacher
-                  ? `${course.teacher.firstName} ${course.teacher.lastName}`
-                  : "Atanmamış"}
+                {course.teacher ? 
+                  `${course.teacher.firstName} ${course.teacher.lastName}` : 
+                  'Atanmamış'}
               </TableCell>
               <TableCell>{course.class.name}</TableCell>
               <TableCell>
@@ -117,9 +117,7 @@ export function CourseList() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() =>
-                      router.push(`/admin/courses/${course._id}/edit`)
-                    }
+                    onClick={() => router.push(`/admin/courses/${course._id}/edit`)}
                   >
                     <Edit2 className="h-4 w-4" />
                   </Button>
@@ -138,5 +136,6 @@ export function CourseList() {
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }
+

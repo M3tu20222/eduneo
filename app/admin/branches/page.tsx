@@ -1,18 +1,18 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { BranchList } from "@/components/admin/BranchList";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Plus } from "lucide-react";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import { BranchList } from "@/components/admin/BranchList"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { Plus } from 'lucide-react'
 
 export default async function BranchesPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions)
 
   if (!session) {
-    redirect("/login");
+    redirect("/login")
   } else if (session.user?.role !== "admin") {
-    redirect("/dashboard");
+    redirect("/dashboard")
   }
 
   return (
@@ -28,5 +28,6 @@ export default async function BranchesPage() {
       </div>
       <BranchList />
     </div>
-  );
+  )
 }
+

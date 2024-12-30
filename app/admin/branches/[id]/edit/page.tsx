@@ -1,19 +1,15 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { EditBranchForm } from "@/components/admin/EditBranchForm";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import { EditBranchForm } from "@/components/admin/EditBranchForm"
 
-export default async function EditBranchPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const session = await getServerSession(authOptions);
+export default async function EditBranchPage({ params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions)
 
   if (!session) {
-    redirect("/login");
+    redirect("/login")
   } else if (session.user?.role !== "admin") {
-    redirect("/dashboard");
+    redirect("/dashboard")
   }
 
   return (
@@ -21,5 +17,6 @@ export default async function EditBranchPage({
       <h1 className="text-2xl font-bold cyberpunk-text mb-6">Branş Düzenle</h1>
       <EditBranchForm branchId={params.id} />
     </div>
-  );
+  )
 }
+

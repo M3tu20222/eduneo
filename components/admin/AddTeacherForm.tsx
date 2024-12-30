@@ -1,90 +1,90 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select } from "@/components/ui/select"
+import { Loader2 } from 'lucide-react'
 
 interface Branch {
-  _id: string;
-  name: string;
+  _id: string
+  name: string
 }
 
 interface Class {
-  _id: string;
-  name: string;
+  _id: string
+  name: string
 }
 
 export function AddTeacherForm() {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
+    name: '',
+    email: '',
+    password: '',
     branches: [] as string[],
     classes: [] as string[],
-  });
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  })
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [classes, setClasses] = useState<Class[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
-    fetchBranches();
-    fetchClasses();
-  }, []);
+    fetchBranches()
+    fetchClasses()
+  }, [])
 
   const fetchBranches = async () => {
     try {
-      const response = await fetch("/api/admin/branches");
+      const response = await fetch('/api/admin/branches')
       if (response.ok) {
-        const data = await response.json();
-        setBranches(data);
+        const data = await response.json()
+        setBranches(data)
       }
     } catch (error) {
-      console.error("Branşları getirme hatası:", error);
+      console.error('Branşları getirme hatası:', error)
     }
-  };
+  }
 
   const fetchClasses = async () => {
     try {
-      const response = await fetch("/api/admin/classes");
+      const response = await fetch('/api/admin/classes')
       if (response.ok) {
-        const data = await response.json();
-        setClasses(data);
+        const data = await response.json()
+        setClasses(data)
       }
     } catch (error) {
-      console.error("Sınıfları getirme hatası:", error);
+      console.error('Sınıfları getirme hatası:', error)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+    e.preventDefault()
+    setLoading(true)
+    setError('')
 
     try {
-      const response = await fetch("/api/admin/teachers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/admin/teachers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      });
+      })
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Öğretmen eklenirken bir hata oluştu");
+        const data = await response.json()
+        throw new Error(data.error || 'Öğretmen eklenirken bir hata oluştu')
       }
 
-      router.push("/admin/teachers");
-      router.refresh();
+      router.push('/admin/teachers')
+      router.refresh()
     } catch (error: any) {
-      setError(error.message);
+      setError(error.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
@@ -110,9 +110,7 @@ export function AddTeacherForm() {
             id="email"
             type="email"
             value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             placeholder="ornek@email.com"
             required
           />
@@ -126,9 +124,7 @@ export function AddTeacherForm() {
             id="password"
             type="password"
             value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             placeholder="••••••••"
             required
           />
@@ -142,15 +138,7 @@ export function AddTeacherForm() {
             id="branches"
             multiple
             value={formData.branches}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                branches: Array.from(
-                  e.target.selectedOptions,
-                  (option) => option.value
-                ),
-              })
-            }
+            onChange={(e) => setFormData({ ...formData, branches: Array.from(e.target.selectedOptions, option => option.value) })}
             required
           >
             {branches.map((branch) => (
@@ -169,15 +157,7 @@ export function AddTeacherForm() {
             id="classes"
             multiple
             value={formData.classes}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                classes: Array.from(
-                  e.target.selectedOptions,
-                  (option) => option.value
-                ),
-              })
-            }
+            onChange={(e) => setFormData({ ...formData, classes: Array.from(e.target.selectedOptions, option => option.value) })}
             required
           >
             {classes.map((cls) => (
@@ -188,24 +168,35 @@ export function AddTeacherForm() {
           </Select>
         </div>
 
-        {error && <div className="text-red-500 text-sm">{error}</div>}
+        {error && (
+          <div className="text-red-500 text-sm">{error}</div>
+        )}
 
         <div className="flex justify-end space-x-4 pt-4">
-          <Button type="button" variant="outline" onClick={() => router.back()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+          >
             İptal
           </Button>
-          <Button type="submit" className="cyberpunk-button" disabled={loading}>
+          <Button
+            type="submit"
+            className="cyberpunk-button"
+            disabled={loading}
+          >
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Kaydediliyor...
               </>
             ) : (
-              "Öğretmen Ekle"
+              'Öğretmen Ekle'
             )}
           </Button>
         </div>
       </div>
     </form>
-  );
+  )
 }
+

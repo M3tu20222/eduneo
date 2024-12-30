@@ -1,59 +1,59 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { toast } from "@/components/ui/use-toast";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select } from "@/components/ui/select"
+import { toast } from "@/components/ui/use-toast"
 
 interface GradeEntryFormProps {
-  courses: { _id: string; name: string }[];
-  students: { _id: string; name: string }[];
+  courses: { _id: string; name: string }[]
+  students: { _id: string; name: string }[]
 }
 
 export function GradeEntryForm({ courses, students }: GradeEntryFormProps) {
   const [formData, setFormData] = useState({
-    student: "",
-    course: "",
-    type: "",
-    value: "",
-    date: new Date().toISOString().split("T")[0],
-  });
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+    student: '',
+    course: '',
+    type: '',
+    value: '',
+    date: new Date().toISOString().split('T')[0]
+  })
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     try {
-      const response = await fetch("/api/teacher/grades", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/teacher/grades', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Not girişi başarısız oldu");
+        throw new Error('Not girişi başarısız oldu')
       }
 
       toast({
         title: "Başarılı",
         description: "Not başarıyla girildi",
-      });
-      router.refresh();
+      })
+      router.refresh()
     } catch (error) {
-      console.error("Not girişi hatası:", error);
+      console.error('Not girişi hatası:', error)
       toast({
         title: "Hata",
         description: "Not girişi sırasında bir hata oluştu",
         variant: "destructive",
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -64,9 +64,7 @@ export function GradeEntryForm({ courses, students }: GradeEntryFormProps) {
       >
         <option value="">Öğrenci Seçin</option>
         {students.map((student) => (
-          <option key={student._id} value={student._id}>
-            {student.name}
-          </option>
+          <option key={student._id} value={student._id}>{student.name}</option>
         ))}
       </Select>
 
@@ -77,9 +75,7 @@ export function GradeEntryForm({ courses, students }: GradeEntryFormProps) {
       >
         <option value="">Ders Seçin</option>
         {courses.map((course) => (
-          <option key={course._id} value={course._id}>
-            {course.name}
-          </option>
+          <option key={course._id} value={course._id}>{course.name}</option>
         ))}
       </Select>
 
@@ -113,8 +109,9 @@ export function GradeEntryForm({ courses, students }: GradeEntryFormProps) {
       />
 
       <Button type="submit" disabled={loading}>
-        {loading ? "Kaydediliyor..." : "Notu Kaydet"}
+        {loading ? 'Kaydediliyor...' : 'Notu Kaydet'}
       </Button>
     </form>
-  );
+  )
 }
+

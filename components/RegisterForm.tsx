@@ -1,62 +1,55 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 
 export function RegisterForm() {
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    email: "",
-    firstName: "",
-    lastName: "",
-    role: "",
-    class: "",
-    studentNumber: "",
-  });
-  const [error, setError] = useState("");
-  const router = useRouter();
+    username: '',
+    password: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    role: '',
+    class: '',
+    studentNumber: '',
+  })
+  const [error, setError] = useState('')
+  const router = useRouter()
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+    e.preventDefault()
+    setError('')
 
     try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      });
+      })
 
       if (response.ok) {
-        router.push("/login");
+        router.push('/login')
       } else {
-        const data = await response.json();
-        setError(data.message || "Kayıt işlemi başarısız oldu.");
+        const data = await response.json()
+        setError(data.message || 'Kayıt işlemi başarısız oldu.')
       }
     } catch (err) {
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
+      setError('Bir hata oluştu. Lütfen tekrar deneyin.')
     }
-  };
+  }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4 w-full max-w-md p-8 bg-card rounded-lg cyberpunk-border cyberpunk-glow"
-    >
-      <h2 className="text-2xl font-bold mb-6 cyberpunk-text text-center">
-        Kayıt Ol
-      </h2>
+    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md p-8 bg-card rounded-lg cyberpunk-border cyberpunk-glow">
+      <h2 className="text-2xl font-bold mb-6 cyberpunk-text text-center">Kayıt Ol</h2>
       <Input
         type="text"
         name="username"
@@ -114,7 +107,7 @@ export function RegisterForm() {
         <option value="teacher">Öğretmen</option>
         <option value="admin">Admin</option>
       </Select>
-      {formData.role === "student" && (
+      {formData.role === 'student' && (
         <>
           <Input
             type="text"
@@ -141,5 +134,6 @@ export function RegisterForm() {
         Kayıt Ol
       </Button>
     </form>
-  );
+  )
 }
+

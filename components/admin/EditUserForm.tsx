@@ -1,99 +1,97 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select } from "@/components/ui/select"
+import { Loader2 } from 'lucide-react'
+import { toast } from "@/components/ui/use-toast"
 
 interface User {
-  _id: string;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  studentNumber?: string;
+  _id: string
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  role: string
+  studentNumber?: string
 }
 
 export function EditUserForm({ userId }: { userId: string }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const router = useRouter();
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const router = useRouter()
 
   const fetchUser = useCallback(async () => {
     try {
-      console.log("Fetching user data for ID:", userId);
-      const response = await fetch(`/api/admin/users/${userId}`);
+      console.log('Fetching user data for ID:', userId);
+      const response = await fetch(`/api/admin/users/${userId}`)
       if (!response.ok) {
-        throw new Error("Kullanıcı bilgileri alınamadı");
+        throw new Error('Kullanıcı bilgileri alınamadı')
       }
-      const data = await response.json();
-      console.log("Fetched user data:", data);
-      setUser(data);
+      const data = await response.json()
+      console.log('Fetched user data:', data);
+      setUser(data)
     } catch (error) {
-      console.error("Kullanıcı bilgilerini getirme hatası:", error);
+      console.error('Kullanıcı bilgilerini getirme hatası:', error)
       toast({
         title: "Hata",
         description: "Kullanıcı bilgileri yüklenirken bir hata oluştu",
         variant: "destructive",
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [userId]);
+  }, [userId])
 
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+    fetchUser()
+  }, [fetchUser])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!user) return;
-    setSubmitting(true);
+    setSubmitting(true)
 
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user),
-      });
+      })
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(
-          data.error || "Kullanıcı güncellenirken bir hata oluştu"
-        );
+        const data = await response.json()
+        throw new Error(data.error || 'Kullanıcı güncellenirken bir hata oluştu')
       }
 
-      const updatedUser = await response.json();
-      setUser(updatedUser);
+      const updatedUser = await response.json()
+      setUser(updatedUser)
       toast({
         title: "Başarılı",
         description: "Kullanıcı başarıyla güncellendi",
-      });
-      router.push("/admin/users");
+      })
+      router.push('/admin/users')
     } catch (error: any) {
-      console.error("Kullanıcı güncelleme hatası:", error);
+      console.error('Kullanıcı güncelleme hatası:', error)
       toast({
         title: "Hata",
         description: error.message,
         variant: "destructive",
-      });
+      })
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   if (loading) {
-    return <div className="text-center py-4">Yükleniyor...</div>;
+    return <div className="text-center py-4">Yükleniyor...</div>
   }
 
   if (!user) {
-    return <div className="text-center py-4">Kullanıcı bulunamadı</div>;
+    return <div className="text-center py-4">Kullanıcı bulunamadı</div>
   }
 
   return (
@@ -164,24 +162,26 @@ export function EditUserForm({ userId }: { userId: string }) {
           </Select>
         </div>
 
-        {user.role === "student" && (
+        {user.role === 'student' && (
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="studentNumber">
               Öğrenci Numarası
             </label>
             <Input
               id="studentNumber"
-              value={user.studentNumber || ""}
-              onChange={(e) =>
-                setUser({ ...user, studentNumber: e.target.value })
-              }
+              value={user.studentNumber || ''}
+              onChange={(e) => setUser({ ...user, studentNumber: e.target.value })}
               placeholder="Örn: 20230001"
             />
           </div>
         )}
 
         <div className="flex justify-end space-x-4 pt-4">
-          <Button type="button" variant="outline" onClick={() => router.back()}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+          >
             İptal
           </Button>
           <Button
@@ -195,11 +195,12 @@ export function EditUserForm({ userId }: { userId: string }) {
                 Güncelleniyor...
               </>
             ) : (
-              "Kullanıcıyı Güncelle"
+              'Kullanıcıyı Güncelle'
             )}
           </Button>
         </div>
       </div>
     </form>
-  );
+  )
 }
+

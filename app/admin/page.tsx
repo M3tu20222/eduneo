@@ -1,27 +1,17 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  Users,
-  BookOpen,
-  GraduationCap,
-  Calendar,
-  Settings,
-  LogOut,
-  UserPlus,
-  School,
-  BookMarked,
-} from "lucide-react";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Users, BookOpen, GraduationCap, Calendar, Settings, LogOut, UserPlus, School, BookMarked } from 'lucide-react'
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions)
 
   if (!session) {
-    redirect("/login");
+    redirect("/login")
   } else if (session.user?.role !== "admin") {
-    redirect("/dashboard");
+    redirect("/dashboard")
   }
 
   return (
@@ -136,5 +126,6 @@ export default async function AdminPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }
+

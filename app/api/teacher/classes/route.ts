@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
-import Course from "@/models/Course";
 import Class from "@/models/Class";
+import Course from "@/models/Course";
 
 export async function GET(req: NextRequest) {
   try {
@@ -23,19 +23,30 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    const courses = await Course.find({ teacher: userId }).distinct("class");
-    const classes = await Class.find({ _id: { $in: courses } })
-      .select("name academicYear students")
+    // Önce öğretmenin verdiği dersleri bul
+    const teacherCourses = await Course.find({ teacher: userId })
+      .distinct("class")
       .lean();
 
-    const classesWithStudentCount = classes.map((cls) => ({
-      _id: cls._id,
+    if (!teacherCourses || teacherCourses.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    // Sonra bu derslerin olduğu sınıfları getir
+    const classes = await Class.find({
+      _id: { $in: teacherCourses },
+      isActive: true,
+    })
+      .select("_id name academicYear")
+      .lean();
+
+    const formattedClasses = classes.map((cls) => ({
+      id: cls._id.toString(),
       name: cls.name,
       academicYear: cls.academicYear,
-      studentCount: cls.students ? cls.students.length : 0,
     }));
 
-    return NextResponse.json(classesWithStudentCount);
+    return NextResponse.json(formattedClasses);
   } catch (error) {
     console.error("Öğretmen sınıfları getirme hatası:", error);
     return NextResponse.json(

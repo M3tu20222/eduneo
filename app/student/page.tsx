@@ -1,12 +1,12 @@
-import { getServerSession } from "next-auth/next";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
+import { getServerSession } from 'next-auth/next'
+import { redirect } from 'next/navigation'
+import { authOptions } from '@/lib/auth'
 
 export default async function StudentDashboard() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions)
 
-  if (!session || session.user?.role !== "student") {
-    redirect("/login");
+  if (!session || session.user?.role !== 'student') {
+    redirect('/login')
   }
 
   return (
@@ -23,11 +23,10 @@ export default async function StudentDashboard() {
         </div>
         <div className="p-6 bg-card rounded-lg cyberpunk-border cyberpunk-glow">
           <h2 className="text-xl font-semibold mb-4">Notlarım</h2>
-          <p>
-            Ders notlarınızı ve genel akademik performansınızı görüntüleyin.
-          </p>
+          <p>Ders notlarınızı ve genel akademik performansınızı görüntüleyin.</p>
         </div>
       </div>
     </div>
-  );
+  )
 }
+

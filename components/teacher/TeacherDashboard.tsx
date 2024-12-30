@@ -55,7 +55,8 @@ export function TeacherDashboard({ userId }: TeacherDashboardProps) {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Derslerim Card */}
       <Card className="cyberpunk-border cyberpunk-glow">
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -64,7 +65,7 @@ export function TeacherDashboard({ userId }: TeacherDashboardProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p>{teacherInfo.branches.join(", ")}</p>
+          <p>{teacherInfo?.branches.join(", ")}</p>
           <Link href="/teacher/courses">
             <Button className="mt-4 w-full cyberpunk-button">
               Dersleri Görüntüle
@@ -73,6 +74,7 @@ export function TeacherDashboard({ userId }: TeacherDashboardProps) {
         </CardContent>
       </Card>
 
+      {/* Sınıflarım Card */}
       <Card className="cyberpunk-border cyberpunk-glow">
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -81,7 +83,7 @@ export function TeacherDashboard({ userId }: TeacherDashboardProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p>{teacherInfo.classes.join(", ")}</p>
+          <p>{teacherInfo?.classes.join(", ")}</p>
           <Link href="/teacher/classes">
             <Button className="mt-4 w-full cyberpunk-button">
               Sınıfları Görüntüle
@@ -90,6 +92,7 @@ export function TeacherDashboard({ userId }: TeacherDashboardProps) {
         </CardContent>
       </Card>
 
+      {/* Ödevler Card */}
       <Card className="cyberpunk-border cyberpunk-glow">
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -106,6 +109,7 @@ export function TeacherDashboard({ userId }: TeacherDashboardProps) {
         </CardContent>
       </Card>
 
+      {/* Not Girişi Card */}
       <Card className="cyberpunk-border cyberpunk-glow">
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -122,6 +126,7 @@ export function TeacherDashboard({ userId }: TeacherDashboardProps) {
         </CardContent>
       </Card>
 
+      {/* Takvim Card */}
       <Card className="cyberpunk-border cyberpunk-glow">
         <CardHeader>
           <CardTitle className="flex items-center">

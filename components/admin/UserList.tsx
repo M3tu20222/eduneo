@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Table,
   TableBody,
@@ -9,68 +9,68 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Edit2, Trash2 } from 'lucide-react'
 
 interface User {
-  _id: string;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
+  _id: string
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  role: string
 }
 
 export function UserList() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers()
+  }, [])
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("/api/admin/users");
+      const response = await fetch('/api/admin/users')
       if (!response.ok) {
-        throw new Error("Kullanıcılar yüklenirken bir hata oluştu");
+        throw new Error('Kullanıcılar yüklenirken bir hata oluştu')
       }
-      const data = await response.json();
-      setUsers(data);
+      const data = await response.json()
+      setUsers(data)
     } catch (error) {
-      setError("Kullanıcılar yüklenirken bir hata oluştu");
-      console.error("Kullanıcıları yükleme hatası:", error);
+      setError('Kullanıcılar yüklenirken bir hata oluştu')
+      console.error('Kullanıcıları yükleme hatası:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Bu kullanıcıyı silmek istediğinizden emin misiniz?")) {
+    if (window.confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
       try {
         const response = await fetch(`/api/admin/users/${id}`, {
-          method: "DELETE",
-        });
+          method: 'DELETE',
+        })
         if (!response.ok) {
-          throw new Error("Kullanıcı silinirken bir hata oluştu");
+          throw new Error('Kullanıcı silinirken bir hata oluştu')
         }
-        fetchUsers(); // Listeyi yenile
+        fetchUsers() // Listeyi yenile
       } catch (error) {
-        console.error("Kullanıcı silme hatası:", error);
-        setError("Kullanıcı silinirken bir hata oluştu");
+        console.error('Kullanıcı silme hatası:', error)
+        setError('Kullanıcı silinirken bir hata oluştu')
       }
     }
-  };
+  }
 
   if (loading) {
-    return <div className="text-center py-4">Yükleniyor...</div>;
+    return <div className="text-center py-4">Yükleniyor...</div>
   }
 
   if (error) {
-    return <div className="text-red-500 text-center py-4">{error}</div>;
+    return <div className="text-red-500 text-center py-4">{error}</div>
   }
 
   return (
@@ -116,5 +116,6 @@ export function UserList() {
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }
+

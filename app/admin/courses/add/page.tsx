@@ -1,15 +1,15 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { AddCourseForm } from "@/components/admin/AddCourseForm";
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import { AddCourseForm } from "@/components/admin/AddCourseForm"
 
 export default async function AddCoursePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions)
 
   if (!session) {
-    redirect("/login");
+    redirect("/login")
   } else if (session.user?.role !== "admin") {
-    redirect("/dashboard");
+    redirect("/dashboard")
   }
 
   return (
@@ -17,5 +17,6 @@ export default async function AddCoursePage() {
       <h1 className="text-2xl font-bold cyberpunk-text mb-6">Yeni Ders Ekle</h1>
       <AddCourseForm />
     </div>
-  );
+  )
 }
+

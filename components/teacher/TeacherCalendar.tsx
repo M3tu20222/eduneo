@@ -1,56 +1,52 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Calendar } from "@/components/ui/calendar"
+import { Button } from "@/components/ui/button"
+import { Plus } from 'lucide-react'
 
 interface Event {
-  _id: string;
-  title: string;
-  date: Date;
-  description: string;
+  _id: string
+  title: string
+  date: Date
+  description: string
 }
 
 interface TeacherCalendarProps {
-  userId: string;
+  userId: string
 }
 
 export function TeacherCalendar({ userId }: TeacherCalendarProps) {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
-  );
+  const [events, setEvents] = useState<Event[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(`/api/teacher/events?userId=${userId}`);
+        const response = await fetch(`/api/teacher/events?userId=${userId}`)
         if (!response.ok) {
-          throw new Error("Etkinlikler alınamadı");
+          throw new Error('Etkinlikler alınamadı')
         }
-        const data = await response.json();
-        setEvents(
-          data.map((event: any) => ({ ...event, date: new Date(event.date) }))
-        );
+        const data = await response.json()
+        setEvents(data.map((event: any) => ({ ...event, date: new Date(event.date) })))
       } catch (error) {
-        console.error("Etkinlikler yüklenirken hata oluştu:", error);
+        console.error('Etkinlikler yüklenirken hata oluştu:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchEvents();
-  }, [userId]);
+    fetchEvents()
+  }, [userId])
 
   const selectedDateEvents = events.filter(
-    (event) => event.date.toDateString() === selectedDate?.toDateString()
-  );
+    event => event.date.toDateString() === selectedDate?.toDateString()
+  )
 
   if (loading) {
-    return <div>Yükleniyor...</div>;
+    return <div>Yükleniyor...</div>
   }
 
   return (
@@ -68,7 +64,7 @@ export function TeacherCalendar({ userId }: TeacherCalendarProps) {
           />
         </CardContent>
       </Card>
-
+      
       <Card className="cyberpunk-border cyberpunk-glow">
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
@@ -82,7 +78,7 @@ export function TeacherCalendar({ userId }: TeacherCalendarProps) {
         <CardContent>
           {selectedDateEvents.length > 0 ? (
             <ul className="space-y-2">
-              {selectedDateEvents.map((event) => (
+              {selectedDateEvents.map(event => (
                 <li key={event._id} className="border-b pb-2">
                   <h3 className="font-semibold">{event.title}</h3>
                   <p className="text-sm text-gray-500">{event.description}</p>
@@ -95,5 +91,6 @@ export function TeacherCalendar({ userId }: TeacherCalendarProps) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }
+

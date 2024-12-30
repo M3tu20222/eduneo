@@ -1,4 +1,4 @@
-import mongoose, { Document, Model } from "mongoose";
+import mongoose, { Document, Model } from 'mongoose'
 
 export interface IBranch extends Document {
   name: string;
@@ -8,32 +8,32 @@ export interface IBranch extends Document {
 }
 
 const BranchSchema = new mongoose.Schema({
-  name: {
-    type: String,
+  name: { 
+    type: String, 
     required: true,
     unique: true,
-    trim: true,
+    trim: true
   },
-  description: {
-    type: String,
-    trim: true,
+  description: { 
+    type: String, 
+    trim: true 
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  updatedAt: { 
+    type: Date, 
+    default: Date.now 
+  }
+})
 
-BranchSchema.pre("save", function (next) {
-  this.updatedAt = new Date();
-  next();
-});
+BranchSchema.pre('save', function(next) {
+  this.updatedAt = new Date()
+  next()
+})
 
-const Branch: Model<IBranch> =
-  mongoose.models.Branch || mongoose.model<IBranch>("Branch", BranchSchema);
+const Branch: Model<IBranch> = mongoose.models.Branch || mongoose.model<IBranch>('Branch', BranchSchema)
 
-export default Branch;
+export default Branch
+
