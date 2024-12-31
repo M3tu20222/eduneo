@@ -1,94 +1,116 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
-import { toast } from "@/components/ui/use-toast"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
 
 interface GradeEntryFormProps {
-  courses: { _id: string; name: string }[]
-  students: { _id: string; name: string }[]
+  courses: { _id: string; name: string }[];
+  students: { _id: string; name: string }[];
 }
 
 export function GradeEntryForm({ courses, students }: GradeEntryFormProps) {
   const [formData, setFormData] = useState({
-    student: '',
-    course: '',
-    type: '',
-    value: '',
-    date: new Date().toISOString().split('T')[0]
-  })
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+    student: "",
+    course: "",
+    type: "",
+    value: "",
+    date: new Date().toISOString().split("T")[0],
+  });
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const response = await fetch('/api/teacher/grades', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/teacher/grades", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Not girişi başarısız oldu')
+        throw new Error("Not girişi başarısız oldu");
       }
 
       toast({
         title: "Başarılı",
         description: "Not başarıyla girildi",
-      })
-      router.refresh()
+      });
+      router.refresh();
     } catch (error) {
-      console.error('Not girişi hatası:', error)
+      console.error("Not girişi hatası:", error);
       toast({
         title: "Hata",
         description: "Not girişi sırasında bir hata oluştu",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Select
         value={formData.student}
-        onChange={(e) => setFormData({ ...formData, student: e.target.value })}
-        required
+        onValueChange={(value) => setFormData({ ...formData, student: value })}
       >
-        <option value="">Öğrenci Seçin</option>
-        {students.map((student) => (
-          <option key={student._id} value={student._id}>{student.name}</option>
-        ))}
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Öğrenci Seçin" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">Öğrenci Seçin</SelectItem>
+          {students.map((student) => (
+            <SelectItem key={student._id} value={student._id}>
+              {student.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
       </Select>
 
       <Select
         value={formData.course}
-        onChange={(e) => setFormData({ ...formData, course: e.target.value })}
-        required
+        onValueChange={(value) => setFormData({ ...formData, course: value })}
       >
-        <option value="">Ders Seçin</option>
-        {courses.map((course) => (
-          <option key={course._id} value={course._id}>{course.name}</option>
-        ))}
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Ders Seçin" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">Ders Seçin</SelectItem>
+          {courses.map((course) => (
+            <SelectItem key={course._id} value={course._id}>
+              {course.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
       </Select>
 
       <Select
         value={formData.type}
-        onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-        required
+        onValueChange={(value) => setFormData({ ...formData, type: value })}
       >
-        <option value="">Not Türü Seçin</option>
-        <option value="exam">Sınav</option>
-        <option value="homework">Ödev</option>
-        <option value="project">Proje</option>
-        <option value="other">Diğer</option>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Not Türü Seçin" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">Not Türü Seçin</SelectItem>
+          <SelectItem value="exam">Sınav</SelectItem>
+          <SelectItem value="homework">Ödev</SelectItem>
+          <SelectItem value="project">Proje</SelectItem>
+          <SelectItem value="other">Diğer</SelectItem>
+        </SelectContent>
       </Select>
 
       <Input
@@ -109,9 +131,8 @@ export function GradeEntryForm({ courses, students }: GradeEntryFormProps) {
       />
 
       <Button type="submit" disabled={loading}>
-        {loading ? 'Kaydediliyor...' : 'Notu Kaydet'}
+        {loading ? "Kaydediliyor..." : "Notu Kaydet"}
       </Button>
     </form>
-  )
+  );
 }
-
