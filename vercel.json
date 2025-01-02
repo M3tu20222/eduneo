@@ -1,16 +1,4 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "next.config.js",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/healthcheck",
-      "dest": "/api/healthcheck"
-    }
-  ]
+  "version": 2
 }
 

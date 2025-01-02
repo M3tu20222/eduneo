@@ -22,6 +22,14 @@ const nextConfig = {
       fullUrl: true,
     },
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/healthcheck',
+        destination: '/api/healthcheck'
+      }
+    ]
+  },
 }
 
 module.exports = nextConfig
