@@ -4,6 +4,38 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user?.role !== "admin") {
+      return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
+    }
+
+    await dbConnect();
+
+    const user = await User.findById(params.id).select("-password");
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Kullanıcı bulunamadı" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("Kullanıcı getirme hatası:", error);
+    return NextResponse.json(
+      { error: "Kullanıcı alınırken bir hata oluştu" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -62,7 +94,7 @@ export async function PUT(
       { _id: params.id },
       updateData,
       { new: true, runValidators: true }
-    ).lean();
+    ).select("-password");
 
     if (!updatedUser) {
       console.log("User not found for update");
