@@ -77,19 +77,23 @@ export async function PUT(
       );
     }
 
-    const updateData: any = {
+    // Preserve existing fields and update only what's provided
+    const updateData = {
+      ...existingUser.toObject(),
       username,
       email,
       firstName,
       lastName,
       role,
+      updatedAt: new Date(),
     };
 
+    // Handle student specific fields
     if (role === "student") {
       updateData.studentNumber = studentNumber;
-    } else {
-      updateData.$unset = { studentNumber: 1 };
     }
+
+    console.log("Updating user with data:", updateData); // Debug log
 
     const updatedUser = await User.findByIdAndUpdate(params.id, updateData, {
       new: true,
@@ -103,6 +107,7 @@ export async function PUT(
       );
     }
 
+    console.log("Updated user:", updatedUser); // Debug log
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Kullanıcı güncelleme hatası:", error);

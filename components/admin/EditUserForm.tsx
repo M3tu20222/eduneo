@@ -75,14 +75,16 @@ export function EditUserForm({ userId }: { userId: string }) {
         );
       }
 
+      const updatedUser = await response.json();
+      console.log("Server response:", updatedUser); // Debug log
+
       toast({
         title: "Başarılı",
         description: "Kullanıcı başarıyla güncellendi",
       });
 
-      // Add router.refresh() to update the page data
-      router.refresh();
-      router.push("/admin/users");
+      // Force a hard refresh of the page
+      window.location.href = "/admin/users";
     } catch (error: any) {
       console.error("Kullanıcı güncelleme hatası:", error);
       toast({
@@ -94,6 +96,7 @@ export function EditUserForm({ userId }: { userId: string }) {
       setSubmitting(false);
     }
   };
+
 
   if (loading) {
     return <div className="text-center py-4">Yükleniyor...</div>;
