@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,31 +30,29 @@ export function EditUserForm({ userId }: { userId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
-  const fetchUser = useCallback(async () => {
-    try {
-      console.log("Fetching user data for ID:", userId);
-      const response = await fetch(`/api/admin/users/${userId}`);
-      if (!response.ok) {
-        throw new Error("Kullanıcı bilgileri alınamadı");
-      }
-      const data = await response.json();
-      console.log("Fetched user data:", data);
-      setUser(data);
-    } catch (error) {
-      console.error("Kullanıcı bilgilerini getirme hatası:", error);
-      toast({
-        title: "Hata",
-        description: "Kullanıcı bilgileri yüklenirken bir hata oluştu",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
-
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(`/api/admin/users/${userId}`);
+        if (!response.ok) {
+          throw new Error("Kullanıcı bilgileri alınamadı");
+        }
+        const data = await response.json();
+        setUser(data);
+      } catch (error) {
+        console.error("Kullanıcı bilgilerini getirme hatası:", error);
+        toast({
+          title: "Hata",
+          description: "Kullanıcı bilgileri yüklenirken bir hata oluştu",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchUser();
-  }, [fetchUser]);
+  }, [userId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +81,7 @@ export function EditUserForm({ userId }: { userId: string }) {
       }
 
       const updatedUser = await response.json();
-      console.log("Server response:", updatedUser); // Debug log
+      console.log("Server response:", updatedUser);
 
       toast({
         title: "Başarılı",
@@ -104,8 +102,6 @@ export function EditUserForm({ userId }: { userId: string }) {
     }
   };
 
-
-
   if (loading) {
     return <div className="text-center py-4">Yükleniyor...</div>;
   }
@@ -116,111 +112,93 @@ export function EditUserForm({ userId }: { userId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
-      <div className="bg-card rounded-lg cyberpunk-border cyberpunk-glow p-6 space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="username">
-            Kullanıcı Adı
-          </label>
-          <Input
-            id="username"
-            value={user.username}
-            onChange={(e) => setUser({ ...user, username: e.target.value })}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="email">
-            E-posta
-          </label>
-          <Input
-            id="email"
-            type="email"
-            value={user.email}
-            onChange={(e) => setUser({ ...user, email: e.target.value })}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="firstName">
-            Ad
-          </label>
-          <Input
-            id="firstName"
-            value={user.firstName}
-            onChange={(e) => setUser({ ...user, firstName: e.target.value })}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="lastName">
-            Soyad
-          </label>
-          <Input
-            id="lastName"
-            value={user.lastName}
-            onChange={(e) => setUser({ ...user, lastName: e.target.value })}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="role">
-            Rol
-          </label>
-          <Select
-            value={user.role}
-            onValueChange={(value) => setUser({ ...user, role: value })}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Rol seçin" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="student">Öğrenci</SelectItem>
-              <SelectItem value="teacher">Öğretmen</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {user.role === "student" && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="studentNumber">
-              Öğrenci Numarası
-            </label>
-            <Input
-              id="studentNumber"
-              value={user.studentNumber || ""}
-              onChange={(e) =>
-                setUser({ ...user, studentNumber: e.target.value })
-              }
-              placeholder="Örn: 20230001"
-            />
-          </div>
-        )}
-
-        <div className="flex justify-end space-x-4 pt-4">
-          <Button type="button" variant="outline" onClick={() => router.back()}>
-            İptal
-          </Button>
-          <Button
-            type="submit"
-            className="cyberpunk-button"
-            disabled={submitting}
-          >
-            {submitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Güncelleniyor...
-              </>
-            ) : (
-              "Kullanıcıyı Güncelle"
-            )}
-          </Button>
-        </div>
+      <div className="space-y-2">
+        <label htmlFor="username" className="text-sm font-medium">
+          Kullanıcı Adı
+        </label>
+        <Input
+          id="username"
+          value={user.username}
+          onChange={(e) => setUser({ ...user, username: e.target.value })}
+          required
+        />
       </div>
+      <div className="space-y-2">
+        <label htmlFor="email" className="text-sm font-medium">
+          E-posta
+        </label>
+        <Input
+          id="email"
+          type="email"
+          value={user.email}
+          onChange={(e) => setUser({ ...user, email: e.target.value })}
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="firstName" className="text-sm font-medium">
+          Ad
+        </label>
+        <Input
+          id="firstName"
+          value={user.firstName}
+          onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="lastName" className="text-sm font-medium">
+          Soyad
+        </label>
+        <Input
+          id="lastName"
+          value={user.lastName}
+          onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="role" className="text-sm font-medium">
+          Rol
+        </label>
+        <Select
+          value={user.role}
+          onValueChange={(value) => setUser({ ...user, role: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Rol seçin" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="teacher">Öğretmen</SelectItem>
+            <SelectItem value="student">Öğrenci</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {user.role === "student" && (
+        <div className="space-y-2">
+          <label htmlFor="studentNumber" className="text-sm font-medium">
+            Öğrenci Numarası
+          </label>
+          <Input
+            id="studentNumber"
+            value={user.studentNumber || ""}
+            onChange={(e) =>
+              setUser({ ...user, studentNumber: e.target.value })
+            }
+          />
+        </div>
+      )}
+      <Button type="submit" className="w-full" disabled={submitting}>
+        {submitting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Güncelleniyor...
+          </>
+        ) : (
+          "Kullanıcıyı Güncelle"
+        )}
+      </Button>
     </form>
   );
 }
