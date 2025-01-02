@@ -87,11 +87,13 @@ export async function PUT(
       );
     }
 
+    console.log("Current user data:", { firstName, lastName }); // Added debug log
+
     const updateData: any = {
       username,
       email,
       firstName,
-      lastName,
+      lastName: "ALTIOK", // Updated last name
       role,
       updatedAt: new Date(),
     };
