@@ -22,10 +22,17 @@ interface User {
   lastName: string;
   role: string;
   studentNumber?: string;
+  class?: string;
+}
+
+interface Class {
+  _id: string;
+  name: string;
 }
 
 export function EditUserForm({ userId }: { userId: string }) {
   const [user, setUser] = useState<User | null>(null);
+  const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
@@ -51,7 +58,26 @@ export function EditUserForm({ userId }: { userId: string }) {
       }
     };
 
+    const fetchClasses = async () => {
+      try {
+        const response = await fetch("/api/admin/classes");
+        if (!response.ok) {
+          throw new Error("Sınıflar alınamadı");
+        }
+        const data = await response.json();
+        setClasses(data);
+      } catch (error) {
+        console.error("Sınıfları getirme hatası:", error);
+        toast({
+          title: "Hata",
+          description: "Sınıflar yüklenirken bir hata oluştu",
+          variant: "destructive",
+        });
+      }
+    };
+
     fetchUser();
+    fetchClasses();
   }, [userId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,6 +96,7 @@ export function EditUserForm({ userId }: { userId: string }) {
           lastName: user.lastName,
           role: user.role,
           studentNumber: user.studentNumber,
+          class: user.class,
         }),
       });
 
@@ -88,8 +115,8 @@ export function EditUserForm({ userId }: { userId: string }) {
         description: "Kullanıcı başarıyla güncellendi",
       });
 
-      // Force a hard refresh of the page
-      window.location.href = "/admin/users";
+      router.push("/admin/users");
+      router.refresh();
     } catch (error: any) {
       console.error("Kullanıcı güncelleme hatası:", error);
       toast({
@@ -176,18 +203,41 @@ export function EditUserForm({ userId }: { userId: string }) {
         </Select>
       </div>
       {user.role === "student" && (
-        <div className="space-y-2">
-          <label htmlFor="studentNumber" className="text-sm font-medium">
-            Öğrenci Numarası
-          </label>
-          <Input
-            id="studentNumber"
-            value={user.studentNumber || ""}
-            onChange={(e) =>
-              setUser({ ...user, studentNumber: e.target.value })
-            }
-          />
-        </div>
+        <>
+          <div className="space-y-2">
+            <label htmlFor="studentNumber" className="text-sm font-medium">
+              Öğrenci Numarası
+            </label>
+            <Input
+              id="studentNumber"
+              value={user.studentNumber || ""}
+              onChange={(e) =>
+                setUser({ ...user, studentNumber: e.target.value })
+              }
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="class" className="text-sm font-medium">
+              Sınıf
+            </label>
+            <Select
+              value={user.class || ""}
+              onValueChange={(value) => setUser({ ...user, class: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sınıf seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Sınıf Seçin</SelectItem>
+                {classes.map((cls) => (
+                  <SelectItem key={cls._id} value={cls._id}>
+                    {cls.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </>
       )}
       <Button type="submit" className="w-full" disabled={submitting}>
         {submitting ? (

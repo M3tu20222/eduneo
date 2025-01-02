@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
+import Class from "@/models/Class";
 
 export async function GET(
   req: NextRequest,
@@ -49,8 +50,15 @@ export async function PUT(
 
     await dbConnect();
 
-    const { username, email, firstName, lastName, role, studentNumber } =
-      await req.json();
+    const {
+      username,
+      email,
+      firstName,
+      lastName,
+      role,
+      studentNumber,
+      class: classId,
+    } = await req.json();
 
     console.log("Received update data:", {
       username,
@@ -59,6 +67,7 @@ export async function PUT(
       lastName,
       role,
       studentNumber,
+      classId,
     });
 
     // Check if email is already in use by another user
@@ -76,17 +85,21 @@ export async function PUT(
       );
     }
 
-    const updateData = {
+    const updateData: any = {
       username,
       email,
       firstName,
       lastName,
       role,
-      ...(role === "student"
-        ? { studentNumber }
-        : { $unset: { studentNumber: 1 } }),
       updatedAt: new Date(),
     };
+
+    if (role === "student") {
+      updateData.studentNumber = studentNumber;
+      updateData.class = classId;
+    } else {
+      updateData.$unset = { studentNumber: 1, class: 1 };
+    }
 
     console.log("Updating user with data:", updateData);
 
@@ -101,6 +114,19 @@ export async function PUT(
       return NextResponse.json(
         { error: "Kullanıcı bulunamadı" },
         { status: 404 }
+      );
+    }
+
+    // If the user is a student and a class is specified, update the class's students array
+    if (role === "student" && classId) {
+      await Class.findByIdAndUpdate(classId, {
+        $addToSet: { students: updatedUser._id },
+      });
+
+      // Remove the user from any other classes
+      await Class.updateMany(
+        { _id: { $ne: classId }, students: updatedUser._id },
+        { $pull: { students: updatedUser._id } }
       );
     }
 
