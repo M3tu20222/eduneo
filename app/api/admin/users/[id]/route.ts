@@ -53,7 +53,7 @@ export async function PUT(
     const { username, email, firstName, lastName, role, studentNumber } =
       await req.json();
 
-    // Validate the user exists first
+    // Find the existing user
     const existingUser = await User.findById(params.id);
     if (!existingUser) {
       return NextResponse.json(
@@ -63,51 +63,41 @@ export async function PUT(
     }
 
     // Check if email is already in use by another user
-    const emailInUse = await User.findOne({
-      email,
-      _id: { $ne: params.id },
-    });
-    if (emailInUse) {
-      return NextResponse.json(
-        {
-          error:
-            "Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor",
-        },
-        { status: 400 }
-      );
+    if (email !== existingUser.email) {
+      const emailInUse = await User.findOne({
+        email,
+        _id: { $ne: params.id },
+      });
+      if (emailInUse) {
+        return NextResponse.json(
+          {
+            error:
+              "Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor",
+          },
+          { status: 400 }
+        );
+      }
     }
 
-    // Preserve existing fields and update only what's provided
-    const updateData = {
-      ...existingUser.toObject(),
-      username,
-      email,
-      firstName,
-      lastName,
-      role,
-      updatedAt: new Date(),
-    };
-
-    // Handle student specific fields
+    // Update user fields
+    existingUser.username = username;
+    existingUser.email = email;
+    existingUser.firstName = firstName;
+    existingUser.lastName = lastName;
+    existingUser.role = role;
     if (role === "student") {
-      updateData.studentNumber = studentNumber;
+      existingUser.studentNumber = studentNumber;
+    } else {
+      existingUser.studentNumber = undefined;
     }
+    existingUser.updatedAt = new Date();
 
-    console.log("Updating user with data:", updateData); // Debug log
+    console.log("Updating user with data:", existingUser.toObject()); // Debug log
 
-    const updatedUser = await User.findByIdAndUpdate(params.id, updateData, {
-      new: true,
-      runValidators: true,
-    }).select("-password");
+    // Save the updated user
+    const updatedUser = await existingUser.save();
 
-    if (!updatedUser) {
-      return NextResponse.json(
-        { error: "Kullanıcı güncellenemedi" },
-        { status: 404 }
-      );
-    }
-
-    console.log("Updated user:", updatedUser); // Debug log
+    console.log("Updated user:", updatedUser.toObject()); // Debug log
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Kullanıcı güncelleme hatası:", error);

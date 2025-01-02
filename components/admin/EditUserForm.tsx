@@ -65,7 +65,14 @@ export function EditUserForm({ userId }: { userId: string }) {
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user),
+        body: JSON.stringify({
+          username: user.username,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          studentNumber: user.studentNumber,
+        }),
       });
 
       if (!response.ok) {
@@ -96,6 +103,7 @@ export function EditUserForm({ userId }: { userId: string }) {
       setSubmitting(false);
     }
   };
+
 
 
   if (loading) {
