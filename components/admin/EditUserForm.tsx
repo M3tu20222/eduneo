@@ -75,12 +75,13 @@ export function EditUserForm({ userId }: { userId: string }) {
         );
       }
 
-      const updatedUser = await response.json();
-      setUser(updatedUser);
       toast({
         title: "Başarılı",
         description: "Kullanıcı başarıyla güncellendi",
       });
+
+      // Add router.refresh() to update the page data
+      router.refresh();
       router.push("/admin/users");
     } catch (error: any) {
       console.error("Kullanıcı güncelleme hatası:", error);
