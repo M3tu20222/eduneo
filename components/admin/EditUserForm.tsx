@@ -65,6 +65,10 @@ export function EditUserForm({ userId }: { userId: string }) {
           throw new Error("Sınıflar alınamadı");
         }
         const data = await response.json();
+        console.log("Fetched classes:", data); // Debug için log
+        if (!Array.isArray(data)) {
+          throw new Error("Geçersiz sınıf verisi");
+        }
         setClasses(data);
       } catch (error) {
         console.error("Sınıfları getirme hatası:", error);
@@ -228,11 +232,17 @@ export function EditUserForm({ userId }: { userId: string }) {
                 <SelectValue placeholder="Sınıf seçin" />
               </SelectTrigger>
               <SelectContent>
-                {classes.map((cls) => (
-                  <SelectItem key={cls._id} value={cls._id}>
-                    {cls.name}
+                {classes.length > 0 ? (
+                  classes.map((cls) => (
+                    <SelectItem key={cls._id} value={cls._id}>
+                      {cls.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>
+                    Sınıf bulunamadı
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
