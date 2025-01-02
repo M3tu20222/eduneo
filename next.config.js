@@ -3,7 +3,6 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     serverComponentsExternalPackages: ['mongoose'],
-    webpackBuildWorker: true,
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -17,6 +16,11 @@ const nextConfig = {
       };
     }
     return config;
+  },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
   },
 }
 
