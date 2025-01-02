@@ -25,6 +25,7 @@ if (!cached) {
 
 async function dbConnect(): Promise<typeof mongoose> {
   if (cached?.conn) {
+    console.log("Using cached database connection");
     return cached.conn;
   }
 
@@ -37,9 +38,11 @@ async function dbConnect(): Promise<typeof mongoose> {
       socketTimeoutMS: 45000,
     };
 
+    console.log("Creating new database connection");
     cached = global.mongoose = {
       conn: null,
       promise: mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+        console.log("Database connected successfully");
         return mongoose;
       }),
     };
@@ -50,8 +53,19 @@ async function dbConnect(): Promise<typeof mongoose> {
     cached.conn = conn;
   } catch (e) {
     cached.promise = null;
+    console.error("Database connection error:", e);
     throw e;
   }
+
+  // Ensure all models are registered
+  require("@/models/User");
+  require("@/models/Class");
+  require("@/models/Branch");
+  require("@/models/Course");
+  require("@/models/Grade");
+  require("@/models/Event");
+  require("@/models/Assignment");
+  require("@/models/StudentPoint");
 
   return cached.conn!;
 }

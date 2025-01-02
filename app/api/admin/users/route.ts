@@ -2,41 +2,48 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
-import Class from "@/models/Class";
+import User from "@/models/User";
+
+// Ensure User model is imported and registered
+import "@/models/User";
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session) {
+    if (!session || session.user?.role !== "admin") {
       return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
     }
 
     await dbConnect();
 
-    const classes = await Class.find()
-      .populate("classTeacher", "firstName lastName")
-      .populate("students")
-      .lean();
+    // Add debug logging
+    console.log("Fetching users...");
 
-    console.log("Fetched classes:", classes); // Debug için log
+    // Explicitly check if User model exists
+    if (!User || !User.modelName) {
+      console.error("User model not properly initialized");
+      throw new Error("User model not properly initialized");
+    }
 
-    const formattedClasses = classes.map((cls) => ({
-      _id: cls._id,
-      name: cls.name,
-      academicYear: cls.academicYear,
-      classTeacherName: cls.classTeacher
-        ? `${cls.classTeacher.firstName} ${cls.classTeacher.lastName}`
-        : "Atanmamış",
-      studentCount: cls.students ? cls.students.length : 0,
-      isActive: cls.isActive,
-    }));
+    const users = await User.find({}, "-password").lean();
 
-    return NextResponse.json(formattedClasses);
+    // Add debug logging
+    console.log(`Found ${users.length} users`);
+
+    return NextResponse.json(users);
   } catch (error) {
-    console.error("Sınıfları getirme hatası:", error);
+    console.error("Kullanıcıları getirme hatası:", error);
+
+    // More detailed error response
+    const errorMessage =
+      error instanceof Error ? error.message : "Bilinmeyen bir hata";
     return NextResponse.json(
-      { error: "Sınıflar alınırken bir hata oluştu" },
+      {
+        error: "Kullanıcılar alınırken bir hata oluştu",
+        details: errorMessage,
+        timestamp: new Date().toISOString(),
+      },
       { status: 500 }
     );
   }
