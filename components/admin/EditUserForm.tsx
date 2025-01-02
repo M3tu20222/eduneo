@@ -228,7 +228,6 @@ export function EditUserForm({ userId }: { userId: string }) {
                 <SelectValue placeholder="Sınıf seçin" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Sınıf Seçin</SelectItem>
                 {classes.map((cls) => (
                   <SelectItem key={cls._id} value={cls._id}>
                     {cls.name}

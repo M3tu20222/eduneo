@@ -10,6 +10,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log("Fetching user with ID:", params.id);
     const session = await getServerSession(authOptions);
 
     if (!session || session.user?.role !== "admin") {
@@ -19,6 +20,7 @@ export async function GET(
     await dbConnect();
 
     const user = await User.findById(params.id).select("-password");
+    console.log("Found user:", user);
 
     if (!user) {
       return NextResponse.json(
