@@ -45,7 +45,7 @@ export function EditUserForm({ userId }: { userId: string }) {
           throw new Error("Kullanıcı bilgileri alınamadı");
         }
         const data = await response.json();
-        setUser(data);
+        setUser({ ...data, class: data.class || "" });
       } catch (error) {
         console.error("Kullanıcı bilgilerini getirme hatası:", error);
         toast({
@@ -94,13 +94,8 @@ export function EditUserForm({ userId }: { userId: string }) {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: user.username,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          studentNumber: user.studentNumber,
-          class: user.class,
+          ...user,
+          class: user.class === "no-class" ? "" : user.class,
         }),
       });
 
@@ -225,13 +220,16 @@ export function EditUserForm({ userId }: { userId: string }) {
               Sınıf
             </label>
             <Select
-              value={user.class || ""}
-              onValueChange={(value) => setUser({ ...user, class: value })}
+              value={user.class || "no-class"}
+              onValueChange={(value) =>
+                setUser({ ...user, class: value === "no-class" ? "" : value })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Sınıf seçin" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="no-class">Sınıf seçin</SelectItem>
                 {classes.length > 0 ? (
                   classes.map((cls) => (
                     <SelectItem key={cls._id} value={cls._id}>
@@ -239,7 +237,7 @@ export function EditUserForm({ userId }: { userId: string }) {
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="no-classes" disabled>
                     Sınıf bulunamadı
                   </SelectItem>
                 )}
