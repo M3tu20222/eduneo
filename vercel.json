@@ -11,12 +11,6 @@
       "src": "/api/healthcheck",
       "dest": "/api/healthcheck"
     }
-  ],
-  "probes": [
-    {
-      "path": "/api/healthcheck",
-      "status": 200
-    }
   ]
 }
 
