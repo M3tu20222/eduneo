@@ -87,13 +87,20 @@ export async function PUT(
       );
     }
 
-    console.log("Current user data:", { firstName, lastName }); // Added debug log
-
-    const updateData: any = {
+    const updateData: {
+      username: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      role: string;
+      updatedAt: Date;
+      studentNumber?: string;
+      class?: string;
+    } = {
       username,
       email,
       firstName,
-      lastName: "ALTIOK", // Updated last name
+      lastName,
       role,
       updatedAt: new Date(),
     };
@@ -102,16 +109,16 @@ export async function PUT(
       updateData.studentNumber = studentNumber;
       updateData.class = classId;
     } else {
-      updateData.$unset = { studentNumber: 1, class: 1 };
+      updateData.studentNumber = undefined;
+      updateData.class = undefined;
     }
 
-    console.log("Updating user with data:", updateData);
+    console.log("Final update data:", updateData);
 
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: params.id },
-      updateData,
-      { new: true, runValidators: true }
-    ).select("-password");
+    const updatedUser = await User.findByIdAndUpdate(params.id, updateData, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
 
     if (!updatedUser) {
       console.log("User not found for update");
@@ -134,7 +141,7 @@ export async function PUT(
       );
     }
 
-    console.log("Updated user:", updatedUser);
+    console.log("Final updated user:", updatedUser);
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Kullanıcı güncelleme hatası:", error);

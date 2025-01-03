@@ -32,6 +32,7 @@ interface Class {
 
 export function EditUserForm({ userId }: { userId: string }) {
   const [user, setUser] = useState<User | null>(null);
+  const [password, setPassword] = useState("");
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -65,7 +66,7 @@ export function EditUserForm({ userId }: { userId: string }) {
           throw new Error("Sınıflar alınamadı");
         }
         const data = await response.json();
-        console.log("Fetched classes:", data); // Debug için log
+        console.log("Fetched classes:", data);
         if (!Array.isArray(data)) {
           throw new Error("Geçersiz sınıf verisi");
         }
@@ -90,13 +91,16 @@ export function EditUserForm({ userId }: { userId: string }) {
     setSubmitting(true);
 
     try {
+      const updatedUserData = {
+        ...user,
+        ...(password.trim() !== "" && { password }),
+        class: user.class === "no-class" ? "" : user.class,
+      };
+
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...user,
-          class: user.class === "no-class" ? "" : user.class,
-        }),
+        body: JSON.stringify(updatedUserData),
       });
 
       if (!response.ok) {
@@ -182,6 +186,21 @@ export function EditUserForm({ userId }: { userId: string }) {
           onChange={(e) => setUser({ ...user, lastName: e.target.value })}
           required
         />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="password" className="text-sm font-medium">
+          Yeni Şifre (Opsiyonel)
+        </label>
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Şifreyi değiştirmek için buraya girin"
+        />
+        <p className="text-xs text-gray-500">
+          Eğer boş bırakırsanız mevcut şifre korunur.
+        </p>
       </div>
       <div className="space-y-2">
         <label htmlFor="role" className="text-sm font-medium">
