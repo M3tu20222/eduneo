@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import Class from "@/models/Class";
+import bcrypt from "bcrypt";
 
 export async function GET(
   req: NextRequest,
@@ -60,6 +61,7 @@ export async function PUT(
       role,
       studentNumber,
       class: classId,
+      password,
     } = await req.json();
 
     console.log("Received update data:", {
@@ -70,6 +72,7 @@ export async function PUT(
       role,
       studentNumber,
       classId,
+      password: password ? "[REDACTED]" : undefined,
     });
 
     // Check if email is already in use by another user
@@ -87,16 +90,7 @@ export async function PUT(
       );
     }
 
-    const updateData: {
-      username: string;
-      email: string;
-      firstName: string;
-      lastName: string;
-      role: string;
-      updatedAt: Date;
-      studentNumber?: string;
-      class?: string;
-    } = {
+    const updateData: any = {
       username,
       email,
       firstName,
@@ -104,6 +98,11 @@ export async function PUT(
       role,
       updatedAt: new Date(),
     };
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
 
     if (role === "student") {
       updateData.studentNumber = studentNumber;
@@ -113,7 +112,10 @@ export async function PUT(
       updateData.class = undefined;
     }
 
-    console.log("Final update data:", updateData);
+    console.log("Final update data:", {
+      ...updateData,
+      password: updateData.password ? "[REDACTED]" : undefined,
+    });
 
     const updatedUser = await User.findByIdAndUpdate(params.id, updateData, {
       new: true,
@@ -151,3 +153,4 @@ export async function PUT(
     );
   }
 }
+
