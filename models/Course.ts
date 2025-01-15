@@ -1,10 +1,11 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { IUser } from "./User";
 
 export interface ICourse extends Document {
   name: string;
   code: string;
-  teacher: Types.ObjectId;
-  students: Types.ObjectId[];
+  teacher: Types.ObjectId | IUser;
+  students: Types.ObjectId[] | IUser[];
   branch: Types.ObjectId;
   class: Types.ObjectId;
 }

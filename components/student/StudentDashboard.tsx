@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Book, GraduationCap, FileText } from "lucide-react";
+import { Book, GraduationCap, FileText, MessageSquare } from "lucide-react";
 
 interface StudentDashboardProps {
   userId: string;
@@ -51,6 +51,19 @@ export default function StudentDashboard({ userId }: StudentDashboardProps) {
               <p>
                 Ders notlarınızı ve genel akademik performansınızı görüntüleyin.
               </p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href={`/student/send-message`} passHref>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <MessageSquare className="mr-2" />
+                Öğretmene Mesaj Gönder
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Öğretmenlerinize mesaj gönderin.</p>
             </CardContent>
           </Card>
         </Link>

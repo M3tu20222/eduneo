@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { ICourse } from "./Course";
 
 export interface IUser extends Document {
   username: string;
@@ -8,7 +9,7 @@ export interface IUser extends Document {
   lastName: string;
   role: "admin" | "teacher" | "student";
   class?: Types.ObjectId;
-  courses: Types.ObjectId[];
+  courses: Types.ObjectId[] | ICourse[];
   studentNumber?: string;
   createdAt: Date;
   updatedAt: Date;
