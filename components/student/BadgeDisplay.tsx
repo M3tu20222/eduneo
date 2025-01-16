@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 interface Badge {
   id: string;
@@ -25,10 +26,12 @@ export default function BadgeDisplay({ badges }: BadgeDisplayProps) {
               key={badge.id}
               className="flex flex-col items-center text-center"
             >
-              <img
-                src={badge.icon}
+              <Image
+                src={badge.icon || "/placeholder.svg"}
                 alt={badge.name}
-                className="w-16 h-16 mb-2"
+                width={64}
+                height={64}
+                className="mb-2"
               />
               <h3 className="font-semibold">{badge.name}</h3>
               <p className="text-sm text-gray-500">{badge.description}</p>

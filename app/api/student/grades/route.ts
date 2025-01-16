@@ -5,7 +5,11 @@ import dbConnect from "@/lib/dbConnect";
 import Grade from "@/models/Grade";
 import Course from "@/models/Course";
 import User, { IUser } from "@/models/User";
-import { Types } from "mongoose";
+import { Types, Document } from "mongoose";
+
+interface IUserWithCourses extends IUser, Document {
+  courses: ICourse[];
+}
 
 interface ICourse {
   _id: Types.ObjectId;
@@ -36,9 +40,9 @@ export async function GET(req: NextRequest) {
 
     const userId = session.user.id;
 
-    const student = await User.findById(userId).populate<{
+    const student = (await User.findById(userId).populate<{
       courses: ICourse[];
-    }>("courses");
+    }>("courses")) as IUserWithCourses | null;
     if (!student) {
       return NextResponse.json(
         { error: "Öğrenci bulunamadı" },
@@ -46,7 +50,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const courseIds = student.courses.map((course: ICourse) => course._id);
+    const courseIds =
+      student?.courses.map((course: ICourse) => course._id) || [];
 
     const grades = await Grade.find({
       student: userId,
