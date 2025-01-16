@@ -1,77 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
-import Course from "@/models/Course";
-import { Types } from "mongoose";
 
-interface TeacherDocument {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  branches: Array<{ _id: Types.ObjectId; name: string }>;
-}
+export async function GET(request: NextRequest) {
+  await dbConnect();
 
-interface CourseDocument {
-  _id: Types.ObjectId;
-  class: {
-    _id: Types.ObjectId;
-    name: string;
-  };
-}
+  const userId = request.nextUrl.searchParams.get("userId");
 
-export async function GET(req: NextRequest) {
+  if (!userId) {
+    return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+  }
+
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user?.role !== "teacher") {
-      return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 401 });
-    }
-
-    const userId = req.nextUrl.searchParams.get("userId");
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Kullanıcı ID'si gerekli" },
-        { status: 400 }
-      );
-    }
-
-    await dbConnect();
-
-    const teacher = (await User.findById(userId)
-      .select("name email branches")
-      .populate("branches", "name")
-      .lean()) as TeacherDocument;
+    const teacher = await User.findOne({ _id: userId, role: "teacher" })
+      .populate("courses")
+      .populate("branches")
+      .lean();
 
     if (!teacher) {
+      console.log("Teacher not found:", userId);
       return NextResponse.json(
         { error: "Öğretmen bulunamadı" },
         { status: 404 }
       );
     }
 
-    const courses = (await Course.find({ teacher: userId })
-      .populate("class", "name")
-      .lean()) as CourseDocument[];
-
-    const classes = Array.from(
-      new Set(courses.map((course) => course.class.name))
-    );
-
     const teacherInfo = {
-      name: teacher.name,
+      firstName: teacher.firstName,
+      lastName: teacher.lastName,
       email: teacher.email,
-      branches: teacher.branches.map((branch) => branch.name),
-      classes: classes,
+      courses: teacher.courses || [],
+      branches: teacher.branches || [],
     };
 
     return NextResponse.json(teacherInfo);
   } catch (error) {
-    console.error("Öğretmen bilgileri getirme hatası:", error);
-    return NextResponse.json(
-      { error: "Öğretmen bilgileri alınırken bir hata oluştu" },
-      { status: 500 }
-    );
+    console.error("Error fetching teacher info:", error);
+    return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
   }
 }

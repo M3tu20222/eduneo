@@ -13,6 +13,7 @@ export interface IUser extends Document {
   studentNumber?: string;
   createdAt: Date;
   updatedAt: Date;
+  branches: Types.ObjectId[];
 }
 
 const UserSchema = new Schema({
@@ -27,6 +28,7 @@ const UserSchema = new Schema({
   studentNumber: { type: String, unique: true, sparse: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  branches: [{ type: Schema.Types.ObjectId, ref: "Branch" }],
 });
 
 const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

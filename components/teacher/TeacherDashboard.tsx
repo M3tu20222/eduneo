@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,11 @@ import {
 } from "lucide-react";
 
 interface TeacherInfo {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  branches: string[];
-  classes: string[];
+  branches: { name: string }[];
+  courses: { name: string }[];
 }
 
 interface TeacherDashboardProps {
@@ -47,101 +48,118 @@ export function TeacherDashboard({ userId }: TeacherDashboardProps) {
   }, [userId]);
 
   if (loading) {
-    return <div>Yükleniyor...</div>;
+    return (
+      <div className="text-center text-2xl font-bold text-neon-blue animate-pulse">
+        Yükleniyor...
+      </div>
+    );
   }
 
   if (!teacherInfo) {
-    return <div>Öğretmen bilgileri bulunamadı.</div>;
+    return (
+      <div className="text-center text-2xl font-bold text-destructive">
+        Öğretmen bilgileri bulunamadı.
+      </div>
+    );
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {/* Derslerim Card */}
-      <Card className="cyberpunk-border cyberpunk-glow">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <BookOpen className="mr-2" />
-            Derslerim
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>{teacherInfo?.branches.join(", ")}</p>
-          <Link href="/teacher/courses">
-            <Button className="mt-4 w-full cyberpunk-button">
-              Dersleri Görüntüle
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+    <div className="container mx-auto p-4 space-y-6">
+      <h1 className="text-4xl font-bold text-center mb-8 text-neon-pink animate-pulse">
+        Öğretmen Paneli
+      </h1>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Derslerim Card */}
+        <Card className="border-2 border-neon-blue shadow-lg hover:shadow-neon-blue transition-shadow duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center text-2xl font-bold text-neon-blue">
+              <BookOpen className="mr-2" />
+              Derslerim
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-foreground">
+              {teacherInfo.courses.map((course) => course.name).join(", ")}
+            </p>
+            <Link href="/teacher/courses" passHref>
+              <Button className="w-full bg-primary text-primary-foreground hover:bg-neon-blue hover:text-background">
+                Dersleri Görüntüle
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
-      {/* Sınıflarım Card */}
-      <Card className="cyberpunk-border cyberpunk-glow">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Users className="mr-2" />
-            Sınıflarım
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>{teacherInfo?.classes.join(", ")}</p>
-          <Link href="/teacher/classes">
-            <Button className="mt-4 w-full cyberpunk-button">
-              Sınıfları Görüntüle
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+        {/* Branşlarım Card */}
+        <Card className="border-2 border-neon-purple shadow-lg hover:shadow-neon-purple transition-shadow duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center text-2xl font-bold text-neon-purple">
+              <Users className="mr-2" />
+              Branşlarım
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-foreground">
+              {teacherInfo.branches.map((branch) => branch.name).join(", ")}
+            </p>
+            <Link href="/teacher/branches" passHref>
+              <Button className="w-full bg-secondary text-secondary-foreground hover:bg-neon-purple hover:text-background">
+                Branşları Görüntüle
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
-      {/* Ödevler Card */}
-      <Card className="cyberpunk-border cyberpunk-glow">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <ClipboardList className="mr-2" />
-            Ödevler
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Link href="/teacher/assignments">
-            <Button className="mt-4 w-full cyberpunk-button">
-              Ödevleri Yönet
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+        {/* Ödevler Card */}
+        <Card className="border-2 border-neon-yellow shadow-lg hover:shadow-neon-yellow transition-shadow duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center text-2xl font-bold text-neon-yellow">
+              <ClipboardList className="mr-2" />
+              Ödevler
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/teacher/assignments" passHref>
+              <Button className="w-full bg-accent text-accent-foreground hover:bg-neon-yellow hover:text-background">
+                Ödevleri Yönet
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
-      {/* Not Girişi Card */}
-      <Card className="cyberpunk-border cyberpunk-glow">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <ClipboardCheck className="mr-2" />
-            Not Girişi
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Link href="/teacher/grades">
-            <Button className="mt-4 w-full cyberpunk-button">
-              Not Girişi Yap
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+        {/* Not Girişi Card */}
+        <Card className="border-2 border-neon-pink shadow-lg hover:shadow-neon-pink transition-shadow duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center text-2xl font-bold text-neon-pink">
+              <ClipboardCheck className="mr-2" />
+              Not Girişi
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/teacher/grades" passHref>
+              <Button className="w-full bg-primary text-primary-foreground hover:bg-neon-pink hover:text-background">
+                Not Girişi Yap
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
-      {/* Takvim Card */}
-      <Card className="cyberpunk-border cyberpunk-glow">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Calendar className="mr-2" />
-            Takvim
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Link href="/teacher/calendar">
-            <Button className="mt-4 w-full cyberpunk-button">
-              Takvimi Görüntüle
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+        {/* Takvim Card */}
+        <Card className="border-2 border-neon-blue shadow-lg hover:shadow-neon-blue transition-shadow duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center text-2xl font-bold text-neon-blue">
+              <Calendar className="mr-2" />
+              Takvim
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/teacher/calendar" passHref>
+              <Button className="w-full bg-secondary text-secondary-foreground hover:bg-neon-blue hover:text-background">
+                Takvimi Görüntüle
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -2,8 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
-import User from "@/models/User";
 import Grade from "@/models/Grade";
+import Course from "@/models/Course";
+import User, { IUser } from "@/models/User";
+import { Types } from "mongoose";
+
+interface ICourse {
+  _id: Types.ObjectId;
+  name: string;
+  teacher: {
+    firstName: string;
+    lastName: string;
+  };
+}
+
+interface IGrade {
+  _id: Types.ObjectId;
+  course: ICourse;
+  type: string;
+  value: number;
+  date: Date;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,24 +34,58 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    const userId = req.nextUrl.searchParams.get("userId");
-    if (!userId) {
+    const userId = session.user.id;
+
+    const student = await User.findById(userId).populate<{
+      courses: ICourse[];
+    }>("courses");
+    if (!student) {
       return NextResponse.json(
-        { error: "Kullanıcı ID'si gerekli" },
-        { status: 400 }
+        { error: "Öğrenci bulunamadı" },
+        { status: 404 }
       );
     }
 
-    const grades = await Grade.find({ student: userId })
-      .populate("course", "name")
+    const courseIds = student.courses.map((course: ICourse) => course._id);
+
+    const grades = await Grade.find({
+      student: userId,
+      course: { $in: courseIds },
+    })
+      .populate<{ course: ICourse }>({
+        path: "course",
+        select: "name teacher",
+        populate: {
+          path: "teacher",
+          select: "firstName lastName",
+        },
+      })
+      .sort("course")
       .lean();
 
-    const formattedGrades = grades.map((grade) => ({
-      course: grade.course.name,
-      grade: grade.grade,
-    }));
+    const formattedGrades = grades.reduce<Record<string, any>>(
+      (acc, grade: IGrade) => {
+        const courseId = grade.course._id.toString();
+        if (!acc[courseId]) {
+          acc[courseId] = {
+            courseId: courseId,
+            courseName: grade.course.name,
+            teacherName: `${grade.course.teacher.firstName} ${grade.course.teacher.lastName}`,
+            grades: [],
+          };
+        }
+        acc[courseId].grades.push({
+          _id: grade._id.toString(),
+          type: grade.type,
+          value: grade.value,
+          date: grade.date.toISOString(),
+        });
+        return acc;
+      },
+      {}
+    );
 
-    return NextResponse.json(formattedGrades);
+    return NextResponse.json(Object.values(formattedGrades));
   } catch (error) {
     console.error("Notlar alınırken hata oluştu:", error);
     return NextResponse.json(
