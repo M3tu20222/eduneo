@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Course {
   _id: string;
@@ -153,118 +154,137 @@ const AddAssignmentForm: React.FC<AddAssignmentFormProps> = ({
   }, [formData.course, courses]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label
-          htmlFor="title"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Başlık
-        </label>
-        <Input
-          type="text"
-          id="title"
-          name="title"
-          value={formData.title}
-          onChange={handleInputChange}
-          required
-          disabled={isSubmitting}
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Açıklama
-        </label>
-        <Textarea
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleInputChange}
-          required
-          disabled={isSubmitting}
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="dueDate"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Teslim Tarihi
-        </label>
-        <DatePicker date={formData.dueDate} setDate={handleDateChange} />
-      </div>
-      <div>
-        <label
-          htmlFor="course"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Ders
-        </label>
-        <Select
-          name="course"
-          value={formData.course}
-          onValueChange={(value) => handleSelectChange("course", value)}
-          disabled={isSubmitting}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Ders seçin" />
-          </SelectTrigger>
-          <SelectContent>
-            {courses.map((course) => (
-              <SelectItem key={course._id} value={course._id}>
-                {course.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <label
-          htmlFor="class"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Sınıf
-        </label>
-        <Select
-          name="class"
-          value={formData.class}
-          onValueChange={(value) => handleSelectChange("class", value)}
-          disabled={isSubmitting || !formData.course}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Sınıf seçin" />
-          </SelectTrigger>
-          <SelectContent>
-            {formData.course ? (
-              courses.find((course) => course._id === formData.course)
-                ?.class ? (
-                <SelectItem
-                  value={
-                    courses.find((course) => course._id === formData.course)!
-                      .class._id
-                  }
-                >
-                  {
-                    courses.find((course) => course._id === formData.course)!
-                      .class.name
-                  }
-                </SelectItem>
-              ) : (
-                <SelectItem value="no-class">Bu dersin sınıfı yok</SelectItem>
-              )
-            ) : (
-              <SelectItem value="select-course">Önce ders seçin</SelectItem>
-            )}
-          </SelectContent>
-        </Select>
-      </div>
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Ekleniyor..." : "Ödev Ekle"}
-      </Button>
-    </form>
+    <Card className="w-full max-w-2xl mx-auto bg-gray-800 border-neon-blue cyberpunk-border cyberpunk-glow">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold text-center text-neon-blue cyberpunk-text">
+          Yeni Ödev Ekle
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-neon-pink"
+            >
+              Başlık
+            </label>
+            <Input
+              type="text"
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              required
+              disabled={isSubmitting}
+              className="w-full bg-gray-700 text-neon-blue border-neon-purple focus:border-neon-pink focus:ring-neon-pink"
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-neon-pink"
+            >
+              Açıklama
+            </label>
+            <Textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              required
+              disabled={isSubmitting}
+              className="w-full bg-gray-700 text-neon-blue border-neon-purple focus:border-neon-pink focus:ring-neon-pink"
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="dueDate"
+              className="block text-sm font-medium text-neon-pink"
+            >
+              Teslim Tarihi
+            </label>
+            <DatePicker date={formData.dueDate} setDate={handleDateChange} />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="course"
+              className="block text-sm font-medium text-neon-pink"
+            >
+              Ders
+            </label>
+            <Select
+              name="course"
+              value={formData.course}
+              onValueChange={(value) => handleSelectChange("course", value)}
+              disabled={isSubmitting}
+            >
+              <SelectTrigger className="w-full bg-gray-700 text-neon-blue border-neon-purple focus:border-neon-pink focus:ring-neon-pink">
+                <SelectValue placeholder="Ders seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                {courses.map((course) => (
+                  <SelectItem key={course._id} value={course._id}>
+                    {course.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="class"
+              className="block text-sm font-medium text-neon-pink"
+            >
+              Sınıf
+            </label>
+            <Select
+              name="class"
+              value={formData.class}
+              onValueChange={(value) => handleSelectChange("class", value)}
+              disabled={isSubmitting || !formData.course}
+            >
+              <SelectTrigger className="w-full bg-gray-700 text-neon-blue border-neon-purple focus:border-neon-pink focus:ring-neon-pink">
+                <SelectValue placeholder="Sınıf seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                {formData.course ? (
+                  courses.find((course) => course._id === formData.course)
+                    ?.class ? (
+                    <SelectItem
+                      value={
+                        courses.find(
+                          (course) => course._id === formData.course
+                        )!.class._id
+                      }
+                    >
+                      {
+                        courses.find(
+                          (course) => course._id === formData.course
+                        )!.class.name
+                      }
+                    </SelectItem>
+                  ) : (
+                    <SelectItem value="no-class">
+                      Bu dersin sınıfı yok
+                    </SelectItem>
+                  )
+                ) : (
+                  <SelectItem value="select-course">Önce ders seçin</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-neon-green text-black font-bold hover:bg-neon-yellow focus:ring-neon-yellow"
+          >
+            {isSubmitting ? "Ekleniyor..." : "Ödev Ekle"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
 

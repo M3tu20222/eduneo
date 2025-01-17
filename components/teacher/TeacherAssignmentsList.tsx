@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Plus, Edit, Trash } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import AddAssignmentForm from "./AddAssignmentForm";
 import EditAssignmentForm from "./EditAssignmentForm";
 import {
@@ -64,6 +64,7 @@ export default function TeacherAssignmentsList({
   );
   const [deletingAssignment, setDeletingAssignment] =
     useState<Assignment | null>(null);
+  const { toast } = useToast();
 
   const fetchAssignments = useCallback(async () => {
     try {
@@ -82,7 +83,7 @@ export default function TeacherAssignmentsList({
         variant: "destructive",
       });
     }
-  }, [userId]);
+  }, [userId, toast]);
 
   const fetchCourses = useCallback(async () => {
     try {
@@ -108,7 +109,7 @@ export default function TeacherAssignmentsList({
         variant: "destructive",
       });
     }
-  }, [userId]);
+  }, [userId, toast]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -123,6 +124,11 @@ export default function TeacherAssignmentsList({
   const handleAssignmentAdded = (newAssignment: Assignment) => {
     setAssignments((prevAssignments) => [...prevAssignments, newAssignment]);
     setShowAddForm(false);
+    toast({
+      title: "Başarılı",
+      description: "Yeni ödev başarıyla eklendi",
+      variant: "default",
+    });
   };
 
   const handleEditAssignment = (assignment: Assignment) => {
@@ -199,61 +205,90 @@ export default function TeacherAssignmentsList({
   };
 
   if (loading) {
-    return <div>Yükleniyor...</div>;
+    return (
+      <div className="text-center text-2xl font-bold text-neon-blue animate-pulse">
+        Yükleniyor...
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Hata: {error}</div>;
+    return (
+      <div className="text-center text-2xl font-bold text-neon-pink">
+        {error}
+      </div>
+    );
   }
 
   return (
-    <div>
-      <Button onClick={() => setShowAddForm(!showAddForm)} className="mb-4">
-        <Plus className="mr-2 h-4 w-4" /> Yeni Ödev Ekle
+    <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
+      <h1 className="text-4xl font-bold mb-8 text-center text-neon-blue cyberpunk-text">
+        Ödev Yönetimi
+      </h1>
+
+      <Button
+        onClick={() => setShowAddForm(!showAddForm)}
+        className="mb-6 bg-neon-green text-black font-bold hover:bg-neon-yellow hover:text-black transition-all duration-300 cyberpunk-button"
+      >
+        <Plus className="mr-2 h-5 w-5" /> Yeni Ödev Ekle
       </Button>
 
       {showAddForm && courses.length > 0 && (
-        <AddAssignmentForm
-          userId={userId}
-          courses={courses}
-          onAssignmentAdded={handleAssignmentAdded}
-        />
+        <Card className="mb-8 bg-gray-800 border-neon-blue cyberpunk-border">
+          <CardHeader>
+            <CardTitle className="text-neon-yellow">Yeni Ödev Ekle</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AddAssignmentForm
+              userId={userId}
+              courses={courses}
+              onAssignmentAdded={handleAssignmentAdded}
+            />
+          </CardContent>
+        </Card>
       )}
 
       {courses.length === 0 && (
-        <div className="mb-4 text-red-500">
+        <div className="mb-4 text-neon-pink font-bold">
           Henüz hiç ders eklenmemiş. Lütfen önce ders ekleyin.
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {assignments.map((assignment) => (
-          <Card key={assignment._id}>
+          <Card
+            key={assignment._id}
+            className="bg-gray-800 border-neon-blue hover:border-neon-yellow transition-all duration-300 cyberpunk-border cyberpunk-glow"
+          >
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <ClipboardList className="mr-2" />
+              <CardTitle className="flex items-center text-neon-yellow">
+                <ClipboardList className="mr-2 h-5 w-5" />
                 {assignment.title}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p>
-                <strong>Açıklama:</strong> {assignment.description}
+            <CardContent className="text-gray-300">
+              <p className="mb-2">
+                <strong className="text-neon-pink">Açıklama:</strong>{" "}
+                {assignment.description}
               </p>
-              <p>
-                <strong>Teslim Tarihi:</strong>{" "}
+              <p className="mb-2">
+                <strong className="text-neon-pink">Teslim Tarihi:</strong>{" "}
                 {new Date(assignment.dueDate).toLocaleDateString()}
               </p>
-              <p>
-                <strong>Ders:</strong> {assignment.course.name}
+              <p className="mb-2">
+                <strong className="text-neon-pink">Ders:</strong>{" "}
+                {assignment.course.name}
               </p>
-              <p>
-                <strong>Sınıf:</strong> {assignment.class.name}
+              <p className="mb-4">
+                <strong className="text-neon-pink">Sınıf:</strong>{" "}
+                {assignment.class.name}
               </p>
-              <div className="mt-4 flex justify-end space-x-2">
+              <div className="flex justify-end space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleEditAssignment(assignment)}
+                  className="bg-neon-blue text-black hover:bg-neon-yellow hover:text-black transition-all duration-300"
                 >
                   <Edit className="mr-2 h-4 w-4" /> Düzenle
                 </Button>
@@ -261,6 +296,7 @@ export default function TeacherAssignmentsList({
                   variant="destructive"
                   size="sm"
                   onClick={() => setDeletingAssignment(assignment)}
+                  className="bg-neon-pink text-black hover:bg-neon-red hover:text-black transition-all duration-300"
                 >
                   <Trash className="mr-2 h-4 w-4" /> Sil
                 </Button>
@@ -283,17 +319,24 @@ export default function TeacherAssignmentsList({
         open={!!deletingAssignment}
         onOpenChange={() => setDeletingAssignment(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-gray-800 border-neon-pink cyberpunk-border">
           <AlertDialogHeader>
-            <AlertDialogTitle>Ödevi Sil</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-neon-yellow">
+              Ödevi Sil
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
               Bu ödevi silmek istediğinizden emin misiniz? Bu işlem geri
               alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>İptal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAssignment}>
+            <AlertDialogCancel className="bg-gray-600 text-white hover:bg-gray-700">
+              İptal
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAssignment}
+              className="bg-neon-red text-black hover:bg-neon-pink"
+            >
               Sil
             </AlertDialogAction>
           </AlertDialogFooter>

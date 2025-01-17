@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,13 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Course {
   _id: string;
@@ -55,116 +50,230 @@ interface EditAssignmentFormProps {
   onCancel: () => void;
 }
 
-export default function EditAssignmentForm({
+const EditAssignmentForm: React.FC<EditAssignmentFormProps> = ({
   assignment,
   courses,
   onUpdate,
   onCancel,
-}: EditAssignmentFormProps) {
+}) => {
   const [formData, setFormData] = useState({
-    ...assignment,
-    dueDate: new Date(assignment.dueDate).toISOString().split("T")[0],
+    title: assignment.title,
+    description: assignment.description,
+    dueDate: new Date(assignment.dueDate),
+    course: assignment.course._id,
+    class: assignment.class._id,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onUpdate(formData);
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      setFormData((prevData) => ({
+        ...prevData,
+        dueDate: date,
+      }));
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    const updatedAssignment: Assignment = {
+      ...assignment,
+      title: formData.title,
+      description: formData.description,
+      dueDate: formData.dueDate.toISOString(),
+      course: {
+        _id: formData.course,
+        name: courses.find((c) => c._id === formData.course)?.name || "",
+      },
+      class: {
+        _id: formData.class,
+        name: courses.find((c) => c._id === formData.course)?.class.name || "",
+      },
+    };
+    onUpdate(updatedAssignment);
+    setIsSubmitting(false);
+  };
+
+  useEffect(() => {
+    if (formData.course) {
+      const selectedCourse = courses.find(
+        (course) => course._id === formData.course
+      );
+      if (selectedCourse && selectedCourse.class) {
+        setFormData((prevData) => ({
+          ...prevData,
+          class: selectedCourse.class._id,
+        }));
+      }
+    }
+  }, [formData.course, courses]);
+
   return (
-    <Dialog open={true} onOpenChange={onCancel}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Ödevi Düzenle</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <Card className="w-full max-w-2xl mx-auto mt-8 bg-gray-800 border-neon-blue cyberpunk-border cyberpunk-glow">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold text-center text-neon-blue cyberpunk-text">
+          Ödevi Düzenle
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="title" className="text-sm font-medium">
-              Ödev Başlığı
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-neon-pink"
+            >
+              Başlık
             </label>
             <Input
+              type="text"
               id="title"
+              name="title"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              onChange={handleInputChange}
               required
+              disabled={isSubmitting}
+              className="w-full bg-gray-700 text-neon-blue border-neon-purple focus:border-neon-pink focus:ring-neon-pink"
             />
           </div>
-
           <div className="space-y-2">
-            <label htmlFor="description" className="text-sm font-medium">
-              Ödev Açıklaması
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-neon-pink"
+            >
+              Açıklama
             </label>
             <Textarea
               id="description"
+              name="description"
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={handleInputChange}
               required
+              disabled={isSubmitting}
+              className="w-full bg-gray-700 text-neon-blue border-neon-purple focus:border-neon-pink focus:ring-neon-pink"
             />
           </div>
-
           <div className="space-y-2">
-            <label htmlFor="dueDate" className="text-sm font-medium">
+            <label
+              htmlFor="dueDate"
+              className="block text-sm font-medium text-neon-pink"
+            >
               Teslim Tarihi
             </label>
-            <Input
-              id="dueDate"
-              type="date"
-              value={formData.dueDate}
-              onChange={(e) =>
-                setFormData({ ...formData, dueDate: e.target.value })
-              }
-              required
-            />
+            <DatePicker date={formData.dueDate} setDate={handleDateChange} />
           </div>
-
           <div className="space-y-2">
-            <label htmlFor="course" className="text-sm font-medium">
+            <label
+              htmlFor="course"
+              className="block text-sm font-medium text-neon-pink"
+            >
               Ders
             </label>
             <Select
-              value={formData.course._id}
-              onValueChange={(value) => {
-                const selectedCourse = courses.find((c) => c._id === value);
-                if (selectedCourse) {
-                  setFormData({
-                    ...formData,
-                    course: {
-                      _id: selectedCourse._id,
-                      name: selectedCourse.name,
-                    },
-                    class: {
-                      _id: selectedCourse.class._id,
-                      name: selectedCourse.class.name,
-                    },
-                  });
-                }
-              }}
+              name="course"
+              value={formData.course}
+              onValueChange={(value) => handleSelectChange("course", value)}
+              disabled={isSubmitting}
             >
-              <SelectTrigger id="course">
-                <SelectValue placeholder="Ders Seçin" />
+              <SelectTrigger className="w-full bg-gray-700 text-neon-blue border-neon-purple focus:border-neon-pink focus:ring-neon-pink">
+                <SelectValue placeholder="Ders seçin" />
               </SelectTrigger>
               <SelectContent>
                 {courses.map((course) => (
                   <SelectItem key={course._id} value={course._id}>
-                    {`${course.name} (${course.code}) - ${course.class.name}`}
+                    {course.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onCancel}>
+          <div className="space-y-2">
+            <label
+              htmlFor="class"
+              className="block text-sm font-medium text-neon-pink"
+            >
+              Sınıf
+            </label>
+            <Select
+              name="class"
+              value={formData.class}
+              onValueChange={(value) => handleSelectChange("class", value)}
+              disabled={isSubmitting || !formData.course}
+            >
+              <SelectTrigger className="w-full bg-gray-700 text-neon-blue border-neon-purple focus:border-neon-pink focus:ring-neon-pink">
+                <SelectValue placeholder="Sınıf seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                {formData.course ? (
+                  courses.find((course) => course._id === formData.course)
+                    ?.class ? (
+                    <SelectItem
+                      value={
+                        courses.find(
+                          (course) => course._id === formData.course
+                        )!.class._id
+                      }
+                    >
+                      {
+                        courses.find(
+                          (course) => course._id === formData.course
+                        )!.class.name
+                      }
+                    </SelectItem>
+                  ) : (
+                    <SelectItem value="no-class">
+                      Bu dersin sınıfı yok
+                    </SelectItem>
+                  )
+                ) : (
+                  <SelectItem value="select-course">Önce ders seçin</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex justify-end space-x-4">
+            <Button
+              type="button"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              className="bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500"
+            >
               İptal
             </Button>
-            <Button type="submit">Güncelle</Button>
-          </DialogFooter>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-neon-green text-black font-bold hover:bg-neon-yellow focus:ring-neon-yellow"
+            >
+              {isSubmitting ? "Güncelleniyor..." : "Güncelle"}
+            </Button>
+          </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+    </Card>
   );
-}
+};
+
+export default EditAssignmentForm;
