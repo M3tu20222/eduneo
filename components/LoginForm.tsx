@@ -1,68 +1,73 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Loader2 } from 'lucide-react'
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 
 export function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         redirect: false,
         email,
         password,
-      })
+      });
 
-      console.log('SignIn result:', result) // Debug için
+      console.log("SignIn result:", result); // Debug için
 
       if (result?.error) {
-        setError('Geçersiz e-posta veya şifre')
-        console.error('Login error:', result.error) // Debug için
+        setError("Geçersiz e-posta veya şifre");
+        console.error("Login error:", result.error); // Debug için
       } else {
         // Başarılı giriş sonrası rol kontrolü için session'ı yeniden al
-        const response = await fetch('/api/auth/session')
-        const session = await response.json()
-        
-        console.log('Session data:', session) // Debug için
+        const response = await fetch("/api/auth/session");
+        const session = await response.json();
 
-        if (session?.user?.role === 'admin') {
-          router.push('/admin')
-        } else if (session?.user?.role === 'teacher') {
-          router.push('/teacher')
-        } else if (session?.user?.role === 'student') {
-          router.push('/student')
+        console.log("Session data:", session); // Debug için
+
+        if (session?.user?.role === "admin") {
+          router.push("/admin");
+        } else if (session?.user?.role === "teacher") {
+          router.push("/teacher");
+        } else if (session?.user?.role === "student") {
+          router.push("/student/dashboard"); // Updated to redirect to student dashboard
         } else {
-          router.push('/dashboard')
+          router.push("/dashboard");
         }
-        
+
         // Sayfayı yenile
-        router.refresh()
+        router.refresh();
       }
     } catch (error) {
-      console.error('Login error:', error) // Debug için
-      setError('Bir hata oluştu. Lütfen tekrar deneyin.')
+      console.error("Login error:", error); // Debug için
+      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md p-8 bg-card rounded-lg cyberpunk-border cyberpunk-glow">
-      <h2 className="text-2xl font-bold mb-6 cyberpunk-text text-center">Giriş Yap</h2>
-      
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 w-full max-w-md p-8 bg-card rounded-lg cyberpunk-border cyberpunk-glow"
+    >
+      <h2 className="text-2xl font-bold mb-6 cyberpunk-text text-center">
+        Giriş Yap
+      </h2>
+
       <div className="space-y-2">
         <Input
           type="email"
@@ -91,14 +96,10 @@ export function LoginForm() {
         />
       </div>
 
-      {error && (
-        <div className="text-red-500 text-sm text-center">
-          {error}
-        </div>
-      )}
+      {error && <div className="text-red-500 text-sm text-center">{error}</div>}
 
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         className="w-full cyberpunk-button"
         disabled={isLoading}
       >
@@ -108,10 +109,9 @@ export function LoginForm() {
             Giriş yapılıyor...
           </>
         ) : (
-          'Giriş Yap'
+          "Giriş Yap"
         )}
       </Button>
     </form>
-  )
+  );
 }
-
